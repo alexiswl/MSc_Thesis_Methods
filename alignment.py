@@ -13,7 +13,8 @@ ALIGNMENT_DIRECTORY = ""
 BWA_MEM_DIRECTORY = ""
 GRAPHMAP_DIRECTORY = ""
 LAST_DIRECTORY = ""
-
+STATS_DIRECTORY = ""
+VISUALS_DIRECTORY = ""
 
 # Declare global files
 LOG_FILE = ""
@@ -93,6 +94,7 @@ def set_directories():
     global LOG_FILE, REFERENCE_FILE, ALIGNMENT_DIRECTORY, SAMPLE_PREFIX
     global BWA_MEM_DIRECTORY, GRAPHMAP_DIRECTORY, LAST_DIRECTORY, TMP_DIRECTORY
     global SAM_FILE, BAM_FILE, SORTED_BAM_FILE_NO_SUFFIX, SORTED_BAM_FILE_INDEX, SORTED_BAM_FILE
+    global STATS_DIRECTORY, VISUALS_DIRECTORY
 
     if not os.path.isdir(WORKING_DIRECTORY):
         error_message = "Error, working directory does not exist."
@@ -129,6 +131,14 @@ def set_directories():
     ALIGNMENT_DIRECTORY = WORKING_DIRECTORY + "alignment/"
     if not os.path.isdir(ALIGNMENT_DIRECTORY):
         os.mkdir(ALIGNMENT_DIRECTORY)
+
+    STATS_DIRECTORY = ALIGNMENT_DIRECTORY + "stats/"
+    if not os.path.isdir(STATS_DIRECTORY):
+        os.mkdir(STATS_DIRECTORY)
+
+    VISUALS_DIRECTORY = ALIGNMENT_DIRECTORY + "visuals/"
+    if not os.path.isdir(VISUALS_DIRECTORY):
+        os.mkdir(VISUALS_DIRECTORY)
 
     TMP_DIRECTORY = ALIGNMENT_DIRECTORY + "tmp/"
     if not os.path.isdir(TMP_DIRECTORY):
@@ -340,8 +350,14 @@ def convert_sam_to_bam():
 
 
 def get_stats():
-    flagstat_command = "samtools flagstat %s >> %s" % (SORTED_BAM_FILE, LOG_FILE)
-    stats_command = "samtools stats %s >> %s" % (SORTED_BAM_FILE, LOG_FILE)
+    stat_prefix = STATS_DIRECTORY + DATE_PREFIX + "_" + ALIGNER
+    flagstat_file = stat_prefix + ".flagstat.txt"
+    stats_file = stat_prefix + ".stats.txt"
+
+    flagstat_command = "samtools flagstat %s > %s 2>> %s" % (SORTED_BAM_FILE, flagstat_file, LOG_FILE)
+    stats_command = "samtools stats %s > %s 2>> %s" % (SORTED_BAM_FILE, stats_file, LOG_FILE)
+    plot_bam_stats_command = "\plot-bamstats -p %s %s 2>> %s" % (VISUALS_DIRECTORY, stats_file, LOG_FILE)
+
 
     logger = open(LOG_FILE, "a+")
     logger.write("Now using flagstat to analyse dataset at %s." % time.strftime("%c"))
@@ -366,6 +382,20 @@ def get_stats():
 
     logger = open(LOG_FILE, "a+")
     logger.write("Completed stat analysis at %s " % time.strftime("%c"))
+    logger.write("In %d seconds.\n" % (end_function_time - start_function_time))
+
+
+    logger = open(LOG_FILE, "a+")
+    logger.write("Now plotting stats output using bamstats at %s." % time.strftime("%c"))
+    logger.write("The command is:\n %s\n" % plot_bam_stats_command)
+    logger.close()
+
+    start_function_time = time.time()
+    os.system(plot_bam_stats_command)
+    end_function_time = time.time()
+
+    logger = open(LOG_FILE, "a+")
+    logger.write("Completed plotting stats output using bamstats at %s " % time.strftime("%c"))
     logger.write("In %d seconds.\n" % (end_function_time - start_function_time))
 
 
