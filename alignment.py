@@ -119,7 +119,7 @@ def set_directories():
         log_directory = WORKING_DIRECTORY + "log/"
         if not os.path.isdir(log_directory):
             os.mkdir(log_directory)
-        LOG_FILE = log_directory + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER + ".txt"
+        LOG_FILE = log_directory + DATE_PREFIX + "_" + RUN_NAME + "." + ALIGNER + ".txt"
 
     if not THREAD_COUNT:
         general_message = "Thread count has not been specified. Using %s \n" % THREAD_COUNT_DEFAULT
@@ -180,7 +180,7 @@ def concatenate_files():
         fasta_files = [READS_DIRECTORY + reads_file for reads_file in os.listdir(READS_DIRECTORY)
                        if reads_file.endswith('fasta')]
         for fasta_file in fasta_files:
-            os.system("cat %s >> %s" % (fasta_file, READS_FILE))
+            os.system("cat %s > %s" % (fasta_file, READS_FILE))
     else:
         READS_FILE = TMP_DIRECTORY + "all_reads.fastq"
         logger.write("Concatenating files to %s at %s.\n" % (READS_FILE, time.strftime("%c")))
@@ -188,7 +188,7 @@ def concatenate_files():
                        if reads_file.endswith('fastq')]
         for fastq_file in fastq_files:
             os.system("cat %s >> %s" % (fastq_file, READS_FILE))
-    logger.write("Completed concatenation of files at.\n" % time.strftime("%c"))
+    logger.write("Completed concatenation of files at %s.\n" % time.strftime("%c"))
     logger.close()
 
 
@@ -203,7 +203,7 @@ def run_bwa_index():
     end_function_time = time.time()
 
     logger = open(LOG_FILE, "a+")
-    logger.write("Completed indexing of reference file " % time.strftime("%c"))
+    logger.write("Completed indexing of reference file %s" % time.strftime("%c"))
     logger.write("in %d seconds.\n" % (end_function_time - start_function_time))
     logger.close()
 
@@ -213,6 +213,7 @@ def run_bwa_mem():
     bwa_command_options.append("-t %s" % THREAD_COUNT)
     bwa_command_options.append("-x ont2d")
     bwa_command_options.append("%s" % REFERENCE_FILE)
+    bwa_command_options.append("%s" % READS_FILE)
 
     bwa_command = "bwa mem %s 1> %s 2>> %s" % (' '.join(bwa_command_options), SAM_FILE, LOG_FILE)
 
@@ -290,8 +291,8 @@ def run_last():
 
 def convert_sam_to_bam():
     sam_to_bam_command = "samtools view -bS -o %s -@ %d %s 2>> %s" % (BAM_FILE, THREAD_COUNT, SAM_FILE, LOG_FILE)
-    sort_bam_file_command = "samtools sort -@ %d %s %s 2>> %s" % (THREAD_COUNT, BAM_FILE,
-                                                                  SORTED_BAM_FILE_NO_SUFFIX, LOG_FILE)
+    sort_bam_file_command = "samtools sort -@ %d %s -o %s 2>> %s" % (THREAD_COUNT, BAM_FILE,
+                                                                  SORTED_BAM_FILE, LOG_FILE)
     index_sorted_bam_file_command = "samtools index %s %s 2>> %s" % (SORTED_BAM_FILE, SORTED_BAM_FILE_INDEX, LOG_FILE)
 
     # Run sam to bam command.
@@ -309,7 +310,7 @@ def convert_sam_to_bam():
     logger.write("In %d seconds.\n" % (end_function_time - start_function_time))
 
     # Run sort bam file command
-    logger.write("Now sorting bam file at: \n" % time.strftime("%c"))
+    logger.write("Now sorting bam file at: %s\n" % time.strftime("%c"))
     logger.write("The command is:\n %s\n" % sort_bam_file_command)
     logger.close()
 
@@ -409,6 +410,9 @@ def main():
 
     # Write to end log
     end_log()
+
+    # Remove temporary directory
+    os.system("rm -rf %s" % TMP_DIRECTORY)
 
 
 main()
