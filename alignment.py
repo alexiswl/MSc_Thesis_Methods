@@ -290,7 +290,8 @@ def run_last():
 
 def convert_sam_to_bam():
     sam_to_bam_command = "samtools view -bS -o %s -@ %d %s 2>> %s" % (BAM_FILE, THREAD_COUNT, SAM_FILE, LOG_FILE)
-    sort_bam_file_command = "samtools sort -@ %d %s %s 2>> %s" % (THREAD_COUNT, BAM_FILE, SORTED_BAM_FILE_NO_SUFFIX, LOG_FILE)
+    sort_bam_file_command = "samtools sort -@ %d %s %s 2>> %s" % (THREAD_COUNT, BAM_FILE,
+                                                                  SORTED_BAM_FILE_NO_SUFFIX, LOG_FILE)
     index_sorted_bam_file_command = "samtools index %s %s 2>> %s" % (SORTED_BAM_FILE, SORTED_BAM_FILE_INDEX, LOG_FILE)
 
     # Run sam to bam command.
@@ -461,5 +462,3 @@ for sam_file in sam_files:
     logger.close()
     os.system(flagstat_command)
 """
-
-
