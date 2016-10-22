@@ -383,6 +383,9 @@ def main():
     # Set commandline parameters to respective script variables
     set_commandline_variables(args)
 
+    # Set and create directories
+    set_directories()
+
     # Initilise the log file
     start_log()
 
