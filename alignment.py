@@ -27,20 +27,21 @@ SORTED_BAM_FILE_INDEX = ""
 # Declare miscellaneous
 version = 1.0
 START_TIME = time.time()
-END_TIME = ""
+END_TIME = time.time()
 DATE_PREFIX = str(time.strftime("%Y-%m-%d"))
 RUN_NAME = ""
-THREAD_COUNT = ""
+THREAD_COUNT = 0
 ALIGNER = ""
 ALIGNMENT_CHOICES = ('bwa_mem', 'graphmap', 'last')
-IS_FASTA = False
 READS_DIRECTORY = ""
 READS_FILE = ""
 TMP_DIRECTORY = ""
-
+SAMPLE_PREFIX = ""
 
 # Set defaults
 THREAD_COUNT_DEFAULT = 20
+IS_FASTA = False
+
 
 def get_commandline_params():
     help_descriptor =   "Converts a folder of fasta or fastq files" \
@@ -72,6 +73,7 @@ def get_commandline_params():
     args = parser.parse_args()
     return args()
 
+
 def set_commandline_variables(args):
     global THREAD_COUNT, WORKING_DIRECTORY, IS_FASTA, READS_DIRECTORY
     global RUN_NAME, LOG_FILE, ALIGNER, REFERENCE_FILE, SAM_FILE
@@ -88,7 +90,7 @@ def set_commandline_variables(args):
 
 def set_directories():
     global THREAD_COUNT, WORKING_DIRECTORY, IS_FASTA, READS_DIRECTORY
-    global LOG_FILE, REFERENCE_FILE, ALIGNMENT_DIRECTORY
+    global LOG_FILE, REFERENCE_FILE, ALIGNMENT_DIRECTORY, SAMPLE_PREFIX
     global BWA_MEM_DIRECTORY, GRAPHMAP_DIRECTORY, LAST_DIRECTORY
     if not os.path.isdir(WORKING_DIRECTORY):
         error_message = "Error, working directory does not exist."
@@ -134,21 +136,25 @@ def set_directories():
         BWA_MEM_DIRECTORY = ALIGNMENT_DIRECTORY + "bwa_mem/"
         if not os.path.isdir(BWA_MEM_DIRECTORY):
             os.mkdir(BWA_MEM_DIRECTORY)
-        SAM_FILE = BWA_MEM_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_bwa_mem.sam"
-        BAM_FILE = BWA_MEM_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_bwa_mem.bam"
+        SAMPLE_PREFIX = BWA_MEM_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER
+
     elif ALIGNER == "graphmap":
         GRAPHMAP_DIRECTORY = ALIGNMENT_DIRECTORY + "graphmap/"
         if not os.path.isdir(GRAPHMAP_DIRECTORY):
             os.mkdir(GRAPHMAP_DIRECTORY)
-        SAM_FILE = GRAPHMAP_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_graphmap.sam"
-        BAM_FILE = GRAPHMAP_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_graphmap.bam"
+        SAMPLE_PREFIX = GRAPHMAP_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER
 
     else:
         LAST_DIRECTORY = LAST_DIRECTORY + "last/"
         if not os.path.isdir(LAST_DIRECTORY):
             os.mkdir(LAST_DIRECTORY)
-        SAM_FILE = LAST_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_last.sam"
-        BAM_FILE = LAST_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_last.bam"
+        SAMPLE_PREFIX = LAST_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER
+
+    SAM_FILE = SAMPLE_PREFIX + ".sam"
+    BAM_FILE = SAMPLE_PREFIX + ".bam"
+    SORTED_BAM_FILE_NO_SUFFIX = SAMPLE_PREFIX + ".sorted"
+    SORTED_BAM_FILE = SORTED_BAM_FILE_NO_SUFFIX + ".bam"
+    SORTED_BAM_FILE_INDEX = SORTED_BAM_FILE_NO_SUFFIX + ".bai"
 
     os.chdir(WORKING_DIRECTORY)
 
@@ -185,13 +191,18 @@ def concatenate_files():
 
 
 def run_bwa_index():
+    bwa_index_command = "bwa index %s 2>> %s" % (REFERENCE_FILE, LOG_FILE)
     logger = open(LOG_FILE, "a+")
     logger.write("Commencing indexing of reference file at %s.\n" % time.strftime("%c"))
     logger.close()
-    bwa_index_command = "bwa index %s 2>> %s" % (REFERENCE_FILE, LOG_FILE)
+
+    start_function_time = time.time()
     os.system(bwa_index_command)
+    end_function_time = time.time()
+
     logger = open(LOG_FILE, "a+")
-    logger.write("Completed indexing of reference file.\n" % time.strftime("%c"))
+    logger.write("Completed indexing of reference file " % time.strftime("%c"))
+    logger.write("in %d seconds.\n" % (end_function_time - start_function_time))
     logger.close()
 
 
@@ -208,10 +219,13 @@ def run_bwa_mem():
     logger.write("The command is:\n %s\n" % bwa_command)
     logger.close()
 
+    start_function_time = time.time()
     os.system(bwa_command)
+    end_function_time = time.time()
 
     logger = open(LOG_FILE, "a+")
-    logger.write("Completed bwa alignment at %s.\n" % time.strftime("%c"))
+    logger.write("Completed bwa alignment at %s " % time.strftime("%c"))
+    logger.write("In %d seconds.\n" % (end_function_time - start_function_time))
     logger.close()
 
 
@@ -229,10 +243,13 @@ def run_graphmap():
     logger.write("The command is:\n %s\n" % graphmap_command)
     logger.close()
 
+    start_function_time = time.time()
     os.system(graphmap_command)
+    end_function_time = time.time()
 
     logger = open(LOG_FILE, "a+")
-    logger.write("Completed graphmap at %s.\n" % time.strftime("%c"))
+    logger.write("Completed graphmap at %s " % time.strftime("%c"))
+    logger.write("in %d seconds.\n" % (end_function_time - start_function_time))
     logger.close()
 
 
@@ -245,28 +262,144 @@ def run_last():
     logger.write("Commencing last at %s.\n" % time.strftime("%c"))
     logger.write("The command is:\n %s\n" % last_command)
     logger.close()
+
+    start_function_time = time.time()
     os.system(last_command)
+    end_function_time = time.time()
 
     logger = open(LOG_FILE, "a+")
-    logger.write("Completed last alignment at %s.\n" % time.strftime("%c"))
+    logger.write("Completed last alignment at %s " % time.strftime("%c"))
+    logger.write("in %d seconds.\n" % (end_function_time - start_function_time))
+
+    # convert last to sam file.
     logger.write("Now converting from maf file to sam file at \n" % time.strftime("%c"))
     logger.write("The command is:\n %s\n" % maf_convert_command)
     logger.close()
 
-    # convert last to sam file.
+    start_function_time = time.time()
     os.system(maf_convert_command)
+    end_function_time = time.time()
+
 
     logger = open(LOG_FILE, "a+")
-    logger.write("Completed conversion at %s.\n" % time.strftime("%c"))
+    logger.write("Completed conversion at %s " % time.strftime("%c"))
+    logger.write("in %d seconds.\n" % (end_function_time - start_function_time))
     logger.close()
 
 
-def convert_sam_to_bam:
-
+def convert_sam_to_bam():
     sam_to_bam_command = "samtools view -bS -o %s -@ %d %s 2>> %s" % (BAM_FILE, THREAD_COUNT, SAM_FILE, LOG_FILE)
-    sort_bam_file_command = "samtools sort -@ %d %s %s 2>> %s" % (THREAD_COUNT, BAM_FILE, sorted_bam_file_no_suffix, log_file)
-    index_sorted_bam_file_command = "samtools index %s %s 2>> %s" % (sorted_bam_file, sorted_bam_file_index)
-        flagstat_command = "samtools flagstat %s >> %s" % (sorted_bam_file, log_file)
+    sort_bam_file_command = "samtools sort -@ %d %s %s 2>> %s" % (THREAD_COUNT, BAM_FILE, SORTED_BAM_FILE_NO_SUFFIX, LOG_FILE)
+    index_sorted_bam_file_command = "samtools index %s %s 2>> %s" % (SORTED_BAM_FILE, SORTED_BAM_FILE_INDEX)
+
+    logger = open(LOG_FILE, "a+")
+    logger.write("Commencing conversion of sam to bam at %s.\n" % time.strftime("%c"))
+    logger.write("The command is:\n %s\n" % sam_to_bam_command)
+    logger.close()
+
+    start_function_time = time.time()
+    os.system(sam_to_bam_command)
+    end_function_time = time.time()
+
+    logger = open(LOG_FILE, "a+")
+    logger.write("Completed conversion of sam to bam at %s " % time.strftime("%c"))
+    logger.write("In %d seconds.\n" % (end_function_time - start_function_time))
+    logger.write("Now sorting bam file at: \n" % time.strftime("%c"))
+    logger.write("The command is:\n %s\n" % sort_bam_file_command)
+    logger.close()
+
+    start_function_time = time.time()
+    os.system(sort_bam_file_command)
+    end_function_time = time.time()
+
+
+    logger = open(LOG_FILE, "a+")
+    logger.write("Completed sorting of bam file alignment at %s " % time.strftime("%c"))
+    logger.write("in %d seconds.\n" % (end_function_time - start_function_time))
+    logger.write("Now indexing sorted bam file at %s. \n" % time.strftime("%c"))
+    logger.write("The command is:\n %s\n" % index_sorted_bam_file_command)
+    logger.close()
+
+    start_function_time = time.time()
+    os.system(index_sorted_bam_file_command)
+    end_function_time = time.time()
+
+    logger = open(LOG_FILE, "a+")
+    logger.write("Completed indexing of sorted bam file at %s " % time.strftime("%c"))
+    logger.write("In %d seconds.\n" % (end_function_time - start_function_time))
+    logger.write("Now indexing sorted bam file at %s. \n" % time.strftime("%c"))
+    logger.write("The command is:\n %s\n" % index_sorted_bam_file_command)
+    logger.close()
+
+
+def get_stats():
+    flagstat_command = "samtools flagstat %s >> %s" % (SORTED_BAM_FILE, LOG_FILE)
+    stats_command = "samtools stats %s >> %s" % (SORTED_BAM_FILE, LOG_FILE)
+
+    logger = open(LOG_FILE, "a+")
+    logger.write("Now using flagstat to analyse dataset at %s." % time.strftime("%c"))
+    logger.write("The command is:\n %s\n" % flagstat_command)
+    logger.close()
+
+    start_function_time = time.time()
+    os.system(flagstat_command)
+    end_function_time = time.time()
+
+    logger = open(LOG_FILE, "a+")
+    logger.write("Completed flagstat analysis at %s " % time.strftime("%c"))
+    logger.write("In %d seconds.\n" % (end_function_time - start_function_time))
+
+    logger.write("Now using samtools stats analysis at %s.\n" % time.strftime("%c"))
+    logger.write("The command is:\n %s\n" % stats_command)
+    logger.close()
+
+    start_function_time = time.time()
+    os.system(stats_command)
+    end_function_time = time.time()
+
+    logger = open(LOG_FILE, "a+")
+    logger.write("Completed stat analysis at %s " % time.strftime("%c"))
+    logger.write("In %d seconds.\n" % (end_function_time - start_function_time))
+
+
+def end_log():
+    global END_TIME
+    END_TIME = time.time()
+    logger = open(LOG_FILE, "a+")
+    logger.write("Completed sam to bam and analysis pipeline at %s" % time.strftime("%c"))
+    logger.write("The total time was %d seconds" % (END_TIME - START_TIME))
+
+
+def main():
+    # Get commandline parameters:
+    args = get_commandline_params()
+
+    # Set commandline parameters to respective script variables
+    set_commandline_variables(args)
+
+    # Initilise the log file
+    start_log()
+
+    # Concatentate the fasta/fastq files
+    concatenate_files()
+
+    # Run aligner
+    if ALIGNER == "bwa_mem":
+        run_bwa_index()
+        run_bwa_mem()
+    elif ALIGNER == "graphmap":
+        run_graphmap()
+    else:
+        run_last()
+
+    # Convert sam file to bam file.
+    convert_sam_to_bam()
+
+    # Get alignment statistics
+    get_stats()
+
+    # Write to end log
+    end_log()
 
 
 """
