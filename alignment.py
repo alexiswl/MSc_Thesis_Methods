@@ -9,7 +9,7 @@ import time
 WORKING_DIRECTORY = ""
 FASTA_DIRECTORY = ""
 FASTQ_DIRECTORY = ""
-ALIGMENT_DIRECTORY = ""
+ALIGNMENT_DIRECTORY = ""
 BWA_MEM_DIRECTORY = ""
 GRAPHMAP_DIRECTORY = ""
 LAST_DIRECTORY = ""
@@ -44,11 +44,11 @@ IS_FASTA = False
 
 
 def get_commandline_params():
-    help_descriptor =   "Converts a folder of fasta or fastq files" \
-                        "align to a reference and then run SAM to sorted BAM and index pipeline. \n" + \
-                        "A log file is generated producing the flag stat output. \n" \
-                        "Can also provide just a directory for the SAM file. \n" \
-                        "This will find all SAM files within the specified directory.\n"
+    help_descriptor = "Converts a folder of fasta or fastq files" \
+                      "align to a reference and then run SAM to sorted BAM and index pipeline. \n" + \
+                      "A log file is generated producing the flag stat output. \n" \
+                      "Can also provide just a directory for the SAM file. \n" \
+                      "This will find all SAM files within the specified directory.\n"
 
     parser = argparse.ArgumentParser(description=help_descriptor)
 
@@ -91,7 +91,9 @@ def set_commandline_variables(args):
 def set_directories():
     global THREAD_COUNT, WORKING_DIRECTORY, IS_FASTA, READS_DIRECTORY
     global LOG_FILE, REFERENCE_FILE, ALIGNMENT_DIRECTORY, SAMPLE_PREFIX
-    global BWA_MEM_DIRECTORY, GRAPHMAP_DIRECTORY, LAST_DIRECTORY
+    global BWA_MEM_DIRECTORY, GRAPHMAP_DIRECTORY, LAST_DIRECTORY, TMP_DIRECTORY
+    global SAM_FILE, BAM_FILE, SORTED_BAM_FILE_NO_SUFFIX, SORTED_BAM_FILE_INDEX, SORTED_BAM_FILE
+
     if not os.path.isdir(WORKING_DIRECTORY):
         error_message = "Error, working directory does not exist."
         sys.exit(error_message)
@@ -117,7 +119,7 @@ def set_directories():
         log_directory = WORKING_DIRECTORY + "log/"
         if not os.path.isdir(log_directory):
             os.mkdir(log_directory)
-        LOG_FILE = log_directory + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER +".txt"
+        LOG_FILE = log_directory + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER + ".txt"
 
     if not THREAD_COUNT:
         general_message = "Thread count has not been specified. Using %s \n" % THREAD_COUNT_DEFAULT
@@ -126,7 +128,7 @@ def set_directories():
 
     ALIGNMENT_DIRECTORY = WORKING_DIRECTORY + "alignment/"
     if not os.path.isdir(ALIGNMENT_DIRECTORY):
-        os.mkdir(ALIGMENT_DIRECTORY)
+        os.mkdir(ALIGNMENT_DIRECTORY)
 
     TMP_DIRECTORY = ALIGNMENT_DIRECTORY + "tmp/"
     if not os.path.isdir(TMP_DIRECTORY):
@@ -145,7 +147,7 @@ def set_directories():
         SAMPLE_PREFIX = GRAPHMAP_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER
 
     else:
-        LAST_DIRECTORY = LAST_DIRECTORY + "last/"
+        LAST_DIRECTORY = ALIGNMENT_DIRECTORY + "last/"
         if not os.path.isdir(LAST_DIRECTORY):
             os.mkdir(LAST_DIRECTORY)
         SAMPLE_PREFIX = LAST_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER
@@ -161,7 +163,7 @@ def set_directories():
 
 def start_log():
     logger = open(LOG_FILE, 'a+')
-    logger.write("Commencing alignment using %s at %s.\n" % ALIGNER, time.strftime("%c"))
+    logger.write("Commencing alignment using %s at %s.\n" % (ALIGNER, time.strftime("%c")))
     logger.write("Working directory is %s.\n" % WORKING_DIRECTORY)
     logger.write("Reference file is %s.\n" % REFERENCE_FILE)
     logger.write("Number of threads used is %s.\n" % THREAD_COUNT)
@@ -174,14 +176,14 @@ def concatenate_files():
     global READS_FILE
     if IS_FASTA:
         READS_FILE = TMP_DIRECTORY + "all_reads.fasta"
-        logger.write("Concatenating files to %s at %s.\n" % READS_FILE, time.strftime("%c"))
+        logger.write("Concatenating files to %s at %s.\n" % (READS_FILE, time.strftime("%c")))
         fasta_files = [READS_DIRECTORY + reads_file for reads_file in os.listdir(READS_DIRECTORY)
                        if reads_file.endswith('fasta')]
         for fasta_file in fasta_files:
             os.system("cat %s >> %s" % (fasta_file, READS_FILE))
     else:
         READS_FILE = TMP_DIRECTORY + "all_reads.fastq"
-        logger.write("Concatenating files to %s at %s.\n" % READS_FILE, time.strftime("%c"))
+        logger.write("Concatenating files to %s at %s.\n" % (READS_FILE, time.strftime("%c")))
         fastq_files = [READS_DIRECTORY + reads_file for reads_file in os.listdir(READS_DIRECTORY)
                        if reads_file.endswith('fastq')]
         for fastq_file in fastq_files:
@@ -280,7 +282,6 @@ def run_last():
     os.system(maf_convert_command)
     end_function_time = time.time()
 
-
     logger = open(LOG_FILE, "a+")
     logger.write("Completed conversion at %s " % time.strftime("%c"))
     logger.write("in %d seconds.\n" % (end_function_time - start_function_time))
@@ -290,8 +291,9 @@ def run_last():
 def convert_sam_to_bam():
     sam_to_bam_command = "samtools view -bS -o %s -@ %d %s 2>> %s" % (BAM_FILE, THREAD_COUNT, SAM_FILE, LOG_FILE)
     sort_bam_file_command = "samtools sort -@ %d %s %s 2>> %s" % (THREAD_COUNT, BAM_FILE, SORTED_BAM_FILE_NO_SUFFIX, LOG_FILE)
-    index_sorted_bam_file_command = "samtools index %s %s 2>> %s" % (SORTED_BAM_FILE, SORTED_BAM_FILE_INDEX)
+    index_sorted_bam_file_command = "samtools index %s %s 2>> %s" % (SORTED_BAM_FILE, SORTED_BAM_FILE_INDEX, LOG_FILE)
 
+    # Run sam to bam command.
     logger = open(LOG_FILE, "a+")
     logger.write("Commencing conversion of sam to bam at %s.\n" % time.strftime("%c"))
     logger.write("The command is:\n %s\n" % sam_to_bam_command)
@@ -304,6 +306,8 @@ def convert_sam_to_bam():
     logger = open(LOG_FILE, "a+")
     logger.write("Completed conversion of sam to bam at %s " % time.strftime("%c"))
     logger.write("In %d seconds.\n" % (end_function_time - start_function_time))
+
+    # Run sort bam file command
     logger.write("Now sorting bam file at: \n" % time.strftime("%c"))
     logger.write("The command is:\n %s\n" % sort_bam_file_command)
     logger.close()
@@ -312,10 +316,11 @@ def convert_sam_to_bam():
     os.system(sort_bam_file_command)
     end_function_time = time.time()
 
-
     logger = open(LOG_FILE, "a+")
     logger.write("Completed sorting of bam file alignment at %s " % time.strftime("%c"))
     logger.write("in %d seconds.\n" % (end_function_time - start_function_time))
+
+    # Run index bam file command.
     logger.write("Now indexing sorted bam file at %s. \n" % time.strftime("%c"))
     logger.write("The command is:\n %s\n" % index_sorted_bam_file_command)
     logger.close()
