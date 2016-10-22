@@ -71,7 +71,7 @@ def get_commandline_params():
     data_type.add_argument('--fastq', action='store_false', dest="IS_FASTA")
 
     args = parser.parse_args()
-    return args()
+    return args
 
 
 def set_commandline_variables(args):
@@ -82,7 +82,7 @@ def set_commandline_variables(args):
     WORKING_DIRECTORY = args.WORKING_DIRECTORY
     READS_DIRECTORY = args.READS_DIRECTORY
     ALIGNER = args.ALIGNER
-    REFERENCE_FILE = args.REFERNCE_FILE
+    REFERENCE_FILE = args.REFERENCE_FILE
     LOG_FILE = args.LOG_FILE
     THREAD_COUNT = args.THREAD_COUNT
     IS_FASTA = args.IS_FASTA
@@ -162,7 +162,7 @@ def set_directories():
 
 
 def start_log():
-    logger = open(LOG_FILE, 'a+')
+    logger = open(LOG_FILE, "a+")
     logger.write("Commencing alignment using %s at %s.\n" % (ALIGNER, time.strftime("%c")))
     logger.write("Working directory is %s.\n" % WORKING_DIRECTORY)
     logger.write("Reference file is %s.\n" % REFERENCE_FILE)
@@ -172,7 +172,7 @@ def start_log():
 
 
 def concatenate_files():
-    logger = open(LOG_FILE, 'a+')
+    logger = open(LOG_FILE, "a+")
     global READS_FILE
     if IS_FASTA:
         READS_FILE = TMP_DIRECTORY + "all_reads.fasta"
@@ -408,6 +408,8 @@ def main():
     end_log()
 
 
+main()
+
 """
 print args.S
 
@@ -415,7 +417,7 @@ log_file = "/data/Bioinfo/bioinfo-proj-alexis/HiSAT2_testing_directory/sam_file_
 sam_files = [sam_directory + sam_file for sam_file in os.listdir(sam_directory) if sam_file.endswith(".sam")]
 JOBS = 20
 
-logger = open(log_file, 'a+')
+logger = open(log_file, "a+")
 logger.write("This is the log file for the sam file analysis" + "\n")
 logger.close()
 
@@ -435,28 +437,28 @@ for sam_file in sam_files:
         flagstat_command = "samtools flagstat %s >> %s" % (sorted_bam_file, log_file)
 
     #Log and run sam_to_bam command
-    logger = open(log_file, 'a+')
+    logger = open(log_file, "a+")
     logger.write("\n" + "Beginning of sam to bam" + "\n")
     logger.write("Function command: " + sam_to_bam_command + "\n")
     logger.close()
     os.system(sam_to_bam_command)
 
     #Log and run sort_bam_file command
-    logger = open(log_file, 'a+')
+    logger = open(log_file, "a+")
     logger.write("\n" + "Beginning sorting of bam file: " + bam_file + "\n")
     logger.write("Function command: " + sort_bam_file_command + "\n")
     logger.close()
     os.system(sort_bam_file_command)
 
     #Log and run index_sorted_bam_file command
-    logger = open(log_file, 'a+')
+    logger = open(log_file, "a+")
     logger.write("\n" + "Beginning indexing of sorted bam file: " + sorted_bam_file + "\n")
     logger.write("Function command " + index_sorted_bam_file_command + "\n")
     logger.close()
     os.system(index_sorted_bam_file_command)
 
     #Log and run flagstat command
-    logger = open(log_file, 'a+')
+    logger = open(log_file, "a+")
     logger.write("\n" + "Performing flagstat summary of sorted bam file " + sample_name + "\n")
     logger.write("Function command: " + flagstat_command + "\n")
     logger.close()
