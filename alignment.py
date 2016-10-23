@@ -446,6 +446,7 @@ def main():
     elif ALIGNER == "graphmap":
         run_graphmap()
     else:
+        run_last_index()
         run_last()
 
     # Convert sam file to bam file.
