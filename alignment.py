@@ -301,7 +301,7 @@ def run_last():
     logger.write("in %d seconds.\n" % (end_function_time - start_function_time))
 
     # convert last to sam file.
-    logger.write("Now converting from maf file to sam file at \n" % time.strftime("%c"))
+    logger.write("Now converting from maf file to sam file at %s\n" % time.strftime("%c"))
     logger.write("The command is:\n %s\n" % maf_convert_command)
     logger.close()
 
