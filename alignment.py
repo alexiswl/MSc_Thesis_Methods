@@ -136,7 +136,7 @@ def set_directories():
     if not os.path.isdir(STATS_DIRECTORY):
         os.mkdir(STATS_DIRECTORY)
 
-    VISUALS_DIRECTORY = ALIGNMENT_DIRECTORY + "visuals/"
+    VISUALS_DIRECTORY = STATS_DIRECTORY + "visuals/"
     if not os.path.isdir(VISUALS_DIRECTORY):
         os.mkdir(VISUALS_DIRECTORY)
 
@@ -190,7 +190,7 @@ def concatenate_files():
         fasta_files = [READS_DIRECTORY + reads_file for reads_file in os.listdir(READS_DIRECTORY)
                        if reads_file.endswith('fasta')]
         for fasta_file in fasta_files:
-            os.system("cat %s > %s" % (fasta_file, READS_FILE))
+            os.system("cat %s >> %s" % (fasta_file, READS_FILE))
     else:
         READS_FILE = TMP_DIRECTORY + "all_reads.fastq"
         logger.write("Concatenating files to %s at %s.\n" % (READS_FILE, time.strftime("%c")))
@@ -266,9 +266,25 @@ def run_graphmap():
     logger.close()
 
 
+def run_last_index():
+    last_index_command = "lastdb %s %s" % (REFERENCE_FILE, REFERENCE_FILE)
+    logger = open(LOG_FILE, "a+")
+    logger.write("Commencing last index of database at %s.\n" % time.strftime("%c"))
+    logger.write("The command is:\n %s\n" % last_index_command)
+    logger.close()
+
+    start_function_time = time.time()
+    os.system(last_index_command)
+    end_function_time = time.time()
+
+    logger = open(LOG_FILE, "a+")
+    logger.write("Completed last indexing at %s " % time.strftime("%c"))
+    logger.write("in %d seconds.\n" % (end_function_time - start_function_time))
+
+
 def run_last():
     maf_file = LAST_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_last.maf"
-    last_command = "last %s %s 1> %s 2>> %s" % (REFERENCE_FILE, READS_FILE, maf_file, LOG_FILE)
+    last_command = "lastal %s %s 1> %s 2>> %s" % (REFERENCE_FILE, READS_FILE, maf_file, LOG_FILE)
     maf_convert_command = "maf-convert.py sam %s 2>> %s" % (maf_file, LOG_FILE)
 
     logger = open(LOG_FILE, "a+")
@@ -350,13 +366,13 @@ def convert_sam_to_bam():
 
 
 def get_stats():
-    stat_prefix = STATS_DIRECTORY + DATE_PREFIX + "_" + ALIGNER
+    stat_prefix = STATS_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER
     flagstat_file = stat_prefix + ".flagstat.txt"
     stats_file = stat_prefix + ".stats.txt"
 
     flagstat_command = "samtools flagstat %s > %s 2>> %s" % (SORTED_BAM_FILE, flagstat_file, LOG_FILE)
     stats_command = "samtools stats %s > %s 2>> %s" % (SORTED_BAM_FILE, stats_file, LOG_FILE)
-    plot_bam_stats_command = "\plot-bamstats -p %s %s 2>> %s" % (VISUALS_DIRECTORY, stats_file, LOG_FILE)
+    plot_bam_stats_command = "plot-bamstats -p %s %s 2>> %s" % (VISUALS_DIRECTORY, stats_file, LOG_FILE)
 
 
     logger = open(LOG_FILE, "a+")
