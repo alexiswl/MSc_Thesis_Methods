@@ -38,6 +38,8 @@ READS_DIRECTORY = ""
 READS_FILE = ""
 TMP_DIRECTORY = ""
 SAMPLE_PREFIX = ""
+IS_1D = False
+FAIL = False
 
 # Set defaults
 THREAD_COUNT_DEFAULT = 20
@@ -62,9 +64,13 @@ def get_commandline_params():
     parser.add_argument("--alignment_method", dest="ALIGNER", type=str,
                         choices=ALIGNMENT_CHOICES, required=True)
     parser.add_argument("--reference", dest="REFERENCE_FILE", type=str,
-                        help="path to the reference")
+                        help="path to the reference", required=True)
     parser.add_argument("--log", nargs='?', dest="LOG_FILE", type=str,
                         help="Capture the output of the alignment. Also gives alignment metrics.")
+    parser.add_argument("--1D", action='store_true', dest="IS_1D",
+                        help="Used for findings fasta files is directory structure.")
+    parser.add_argument("--fail", action='store_true', dest="FAIL",
+                        help="Analyse the fail reads from metrichor.")
     parser.add_argument("--threads", nargs='?', dest="THREAD_COUNT", type=int,
                         help="Number of processes used during view and sort. Default is %d" % THREAD_COUNT_DEFAULT)
     data_type = parser.add_mutually_exclusive_group(required=True)
@@ -77,13 +83,15 @@ def get_commandline_params():
 
 def set_commandline_variables(args):
     global THREAD_COUNT, WORKING_DIRECTORY, IS_FASTA, READS_DIRECTORY
-    global RUN_NAME, LOG_FILE, ALIGNER, REFERENCE_FILE, SAM_FILE
+    global RUN_NAME, LOG_FILE, ALIGNER, REFERENCE_FILE, SAM_FILE, IS_1D, FAIL
 
     RUN_NAME = args.RUN_NAME
     WORKING_DIRECTORY = args.WORKING_DIRECTORY
     READS_DIRECTORY = args.READS_DIRECTORY
     ALIGNER = args.ALIGNER
     REFERENCE_FILE = args.REFERENCE_FILE
+    IS_1D = args.IS_1D
+    FAIL = args.FAIL
     LOG_FILE = args.LOG_FILE
     THREAD_COUNT = args.THREAD_COUNT
     IS_FASTA = args.IS_FASTA
@@ -104,9 +112,16 @@ def set_directories():
     if not READS_DIRECTORY:
         if IS_FASTA:
             READS_DIRECTORY = WORKING_DIRECTORY + "fasta/"
-        else:  # Is fastq
+            if IS_1D:
+                READS_DIRECTORY += "1D/"
+            else:
+                READS_DIRECTORY += "2D/2D/"
+        else:
             READS_DIRECTORY = WORKING_DIRECTORY + "fastq/"
-
+            if FAIL:# Is fastq
+                READS_DIRECTORY += "fail/"
+            else:
+                READS_DIRECTORY += "pass/"
     if not os.path.isfile(REFERENCE_FILE):
         error_message = "Could not find reference file."
         sys.exit(error_message)
@@ -463,58 +478,3 @@ def main():
 
 
 main()
-
-"""
-print args.S
-
-log_file = "/data/Bioinfo/bioinfo-proj-alexis/HiSAT2_testing_directory/sam_file_analysis.log"
-sam_files = [sam_directory + sam_file for sam_file in os.listdir(sam_directory) if sam_file.endswith(".sam")]
-JOBS = 20
-
-logger = open(log_file, "a+")
-logger.write("This is the log file for the sam file analysis" + "\n")
-logger.close()
-
-for sam_file in sam_files:
-
-    #Variable names
-    sample_name = sam_file.split('.')[0]
-    bam_file = "%s.bam" % (sample_name)
-    sorted_bam_file_no_suffix = "%s.sorted" % (sample_name)
-    sorted_bam_file = "%s.sorted.bam" % (sample_name)
-    sorted_bam_file_index = "%s.bai" % (sorted_bam_file_no_suffix)
-
-    #List of commands to run (in order)
-        sam_to_bam_command = "samtools view -bS -o %s -@ %d %s 2>> %s" % (bam_file, JOBS, sam_file, log_file)
-    sort_bam_file_command = "samtools sort -@ %d %s %s 2>> %s" % (JOBS, bam_file, sorted_bam_file_no_suffix, log_file)
-    index_sorted_bam_file_command = "samtools index %s %s 2>> %s" % (sorted_bam_file, sorted_bam_file_index)
-        flagstat_command = "samtools flagstat %s >> %s" % (sorted_bam_file, log_file)
-
-    #Log and run sam_to_bam command
-    logger = open(log_file, "a+")
-    logger.write("\n" + "Beginning of sam to bam" + "\n")
-    logger.write("Function command: " + sam_to_bam_command + "\n")
-    logger.close()
-    os.system(sam_to_bam_command)
-
-    #Log and run sort_bam_file command
-    logger = open(log_file, "a+")
-    logger.write("\n" + "Beginning sorting of bam file: " + bam_file + "\n")
-    logger.write("Function command: " + sort_bam_file_command + "\n")
-    logger.close()
-    os.system(sort_bam_file_command)
-
-    #Log and run index_sorted_bam_file command
-    logger = open(log_file, "a+")
-    logger.write("\n" + "Beginning indexing of sorted bam file: " + sorted_bam_file + "\n")
-    logger.write("Function command " + index_sorted_bam_file_command + "\n")
-    logger.close()
-    os.system(index_sorted_bam_file_command)
-
-    #Log and run flagstat command
-    logger = open(log_file, "a+")
-    logger.write("\n" + "Performing flagstat summary of sorted bam file " + sample_name + "\n")
-    logger.write("Function command: " + flagstat_command + "\n")
-    logger.close()
-    os.system(flagstat_command)
-"""
