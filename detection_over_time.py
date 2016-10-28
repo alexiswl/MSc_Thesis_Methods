@@ -21,7 +21,7 @@ WORKING_DIRECTORY = args.WORKING_DIRECTORY
 ONECODEX_DIRECTORY = args.ONECODEX_DIRECTORY
 
 if WORKING_DIRECTORY:
-    if not os.path.isdir(WORKING_DIRECTORY):
+    if not os.path.isdir(WORKING_DIRECTORY)
         error_message = "Error: Working directory does not exist."
         sys.exit(error_message)
 if not WORKING_DIRECTORY:
@@ -50,8 +50,9 @@ start_time = int(datetime.datetime.strptime("2016-10-27-14-11-20", "%Y-%m-%d-%H-
 species_matched = []
 time_points = []
 
+summary_files = [SUMMARY_DIRECTORY + summary_file for summary_file in os.listdir(SUMMARY_DIRECTORY)]
 
-for summary_file in os.listdir(SUMMARY_DIRECTORY):
+for summary_file in summary_files:
     os.system("cat %s >> %s" % (summary_file, ACCUMULATIVE_SUMMARY_FILE))
     date_string = summary_file.split("-")
     year = date_string[0][-4:]
