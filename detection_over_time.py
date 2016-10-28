@@ -55,9 +55,9 @@ summary_files = [SUMMARY_DIRECTORY + summary_file for summary_file in os.listdir
 for summary_file in summary_files:
     os.system("cat %s >> %s" % (summary_file, ACCUMULATIVE_SUMMARY_FILE))
     date_string = summary_file.split("-")
-    year = date_string[0][-4:]
+    year = date_string[-6][-4:]
     seconds = date_string[len(date_string)-1][0:2]
-    date_string = year + "-" + "-".join(date_string[1:len(date_string)-1]) + "-" + seconds
+    date_string = year + "-" + "-".join(date_string[-5:len(date_string)-1]) + "-" + seconds
     current_time = int(datetime.datetime.strptime(date_string, "%Y-%m-%d-%H-%M-%S").strftime("%s"))
     time_point = current_time - start_time
 
