@@ -21,7 +21,7 @@ WORKING_DIRECTORY = args.WORKING_DIRECTORY
 ONECODEX_DIRECTORY = args.ONECODEX_DIRECTORY
 
 if WORKING_DIRECTORY:
-    if not os.path.isdir(WORKING_DIRECTORY)
+    if not os.path.isdir(WORKING_DIRECTORY):
         error_message = "Error: Working directory does not exist."
         sys.exit(error_message)
 if not WORKING_DIRECTORY:
