@@ -1,4 +1,4 @@
-#!/usr/bin/env R
+#!/usr/bin/env Rscript
 
 args = commandArgs(trailingOnly = TRUE)
 
@@ -12,5 +12,9 @@ names(summary_table) = c("Taxid", "Freq")
 
 summary_table_count = count(summary_table, vars="Taxid")
 
-print length(summary_summary_table_count[summary_table_count$freq > 7, ])
+total_alignments = sum(summary_table_count%freq)
+
+threshold = 6 + total_alignments/1000
+
+print(nrow(summary_table_count[summary_table_count$freq > threshold, ]))
 
