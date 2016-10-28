@@ -24,3 +24,12 @@ for summary_file in os.path.listdir(SUMMARY_DIRECTORY):
     sys_output, species_match = commands.getstatusoutput("detection_over_time.R %s" % ACCUMULATIVE_SUMMARY_FILE)
     species_matched.append(species_match)
     time_points.append(time_point)
+
+output_file = ACCUMULATIVE_SUMMARY_FILE + final_output.txt
+output_file_h = open(output_file, "a+")
+for species_match, time_point in zip(species_matched, time_points):
+    output_file_h.write(time_point + species_match + "\n")
+
+
+
+
