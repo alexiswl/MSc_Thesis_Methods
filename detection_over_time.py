@@ -51,6 +51,7 @@ species_matched = []
 time_points = []
 
 summary_files = [SUMMARY_DIRECTORY + summary_file for summary_file in os.listdir(SUMMARY_DIRECTORY)]
+summary_files.sort()
 
 for summary_file in summary_files:
     os.system("cat %s >> %s" % (summary_file, ACCUMULATIVE_SUMMARY_FILE))
@@ -68,7 +69,7 @@ for summary_file in summary_files:
 output_file = ACCUMULATIVE_SUMMARY_FILE + "final_output.txt"
 output_file_h = open(output_file, "a+")
 for species_match, time_point in zip(species_matched, time_points):
-    output_file_h.write(time_point + species_match + "\n")
+    output_file_h.write(str(time_point) + species_match + "\n")
 
 
 
