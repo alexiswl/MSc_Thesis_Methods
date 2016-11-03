@@ -10,7 +10,7 @@ args = commandArgs(trailingOnly = TRUE)
 initial_table = read.table(args[1])
 run_name = args[2]
 # Split second variable into two variables
-V2_split <- strsplit(as.character(a$V2), " ")
+V2_split <- strsplit(as.character(initial_table$V2), " ")
 
 total_reads_matched = array(0, dim=c(0,length(c)))
 species_matched = array(0, dim=c(0,length(c)))
