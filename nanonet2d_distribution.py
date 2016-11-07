@@ -5,11 +5,16 @@
 
 from Bio import SeqIO
 import os
+import time
 
 main_directory = "/data/Bioinfo/bioinfo-proj-alexis/2016_08_16_E_COLI_R9/"
+analytics_directory = main_directory + "analytics/"
 nanonet_2d_fasta_file = main_directory + "fasta/2D/concatenated_2d.fasta"
 nanonet_2d_fasta_directory = main_directory + "fasta/2D/2d/"
 os.system("cat %s* > %s" % (nanonet_2d_fasta_directory, nanonet_2d_fasta_file))
+
+RUN_NAME = "E_COLI_R9"
+DATE_PREFIX = str(time.strftime("%Y-%m-%d"))
 
 nanonet_2d_read_ids = []
 input_handle = open(nanonet_2d_fasta_file, "rU")
@@ -44,6 +49,17 @@ for read in nanonet_2d_read_ids:
     if read in os.path.listdir(pass_directory):
         distribution["pass"] += 1
 
+col_names = []
+col_values = []
+for key, value in distribution.iteritems():
+    col_names.append(key)
+    col_values.append(value)
 
+run_distribution_summary_file = analytics_directory + DATE_PREFIX + "_" + RUN_NAME + "_run_distribution.txt"
 
-print(distribution)
+output_handle = open(run_distribution_summary_file, "w+")
+output_handle.write("\t".join(str(col_names)) + "\n")
+output_handle.write("\t".join(str(col_values)) + "\n")
+output_handle.close()
+
+os.system("run_distribution.R %s" % RUN_NAME)
