@@ -23,13 +23,20 @@ for record in SeqIO.parse(input_handle, "fasta"):
 pass_directory = main_directory + "reads/downloads/fail/"
 fail_directory = main_directory + "reads/downloads/fail/"
 fail_folder_set = ("1D_basecall_not_performed", "2D_basecall_not_performed", "2D_failed_quality_filters",
-                   "Calibration_strand_detected", "Corrupted_files", "No_complement_data", "No_template_data",
+                   "Corrupted_files", "No_complement_data", "No_template_data",
                    "Unknown_error")
 fail_folders = {}
+calibration_stand_sub_folder_set = ("2D_basecall_not_performed", "2D_failed_quality_filters", "Passed_quality")
+
 distribution = {"pass":0}
+
 for folder in fail_folder_set:
     fail_folders.update({folder: fail_directory + folder + "/"})
     distribution.update({folder: 0})
+
+for calibration_sub_folder in calibration_stand_sub_folder_set:
+    fail_folders.update({"Calibration_strand_detected/" + calibration_sub_folder:
+                         fail_directory + "Calibration_strand_detected/" + folder + "/"})
 
 for read in nanonet_2d_read_ids:
     for fail_folder, fail_folder_path in fail_folders.iteritems():
