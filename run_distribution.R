@@ -5,12 +5,13 @@ args = commandArgs(trailingOnly = TRUE)
 input_table = args[1]
 RUN_NAME = args[2]
 
+all_data <- read.table(input_table, header = TRUE)
 # Remove X from column name.
-new_test_data_names <- gsub("^X", "", names(test_data))
-names(test_data) <- new_test_data_names
-calibration_strands = grepl("Calibration*", names(test_data))
-calibration_data <- test_data[,calibration_strands]
-run_data <- test_data[,!calibration_strands]
+new_all_data_names <- gsub("^X", "", names(all_data))
+names(all_data) <- new_all_data_names
+calibration_strands = grepl("Calibration*", names(all_data))
+calibration_data <- all_data[,calibration_strands]
+run_data <- all_data[,!calibration_strands]
 calibration_data_names <- gsub("^Calibration_strand_detected.", "", names(calibration_data))
 names(calibration_data) <- calibration_data_names
 calibration_data_names = c("2D basecall not performed", "2D failed quality filters", "Passed quality")
