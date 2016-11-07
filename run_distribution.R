@@ -28,7 +28,7 @@ text(bp, par("usr")[3], cex=0.8, labels = calibration_data_names, adj = c(0.5,2)
 dev.off()
 
 # Reorder by column name
-run_data_names <- c("Unknown error","Corrupted files","No template data", "1D basecalled not performed",
+run_data_names <- c("Unknown error","Corrupted files","No template data", "1D basecall not performed",
                     "No complement data", "2D basecall not performed", "2D failed quality filters", "pass")
 run_data <- cbind(run_data$Unknown_error, run_data$Corrupted_files, run_data$No_template_data,
                   run_data$`1D_basecall_not_performed`, run_data$No_complement_data,
@@ -37,9 +37,10 @@ run_data <- as.data.frame(run_data)
 names(run_data) <- run_data_names
 
 # Create plot
-colours = c(rep("red3", 5), rep("darkorange", 2), "darkolivegreen3")
+colours = c(rep("red3", 6), "darkorange", "darkolivegreen3")
+cex = c(rep(0.7, 3), 0.55, 0.7, 0.6, 0.7, 1)
 png("overall_plot.png")
 bp <- barplot(as.numeric(run_data), col = colours, ylab = "Number of Reads", main =
 paste(c("Distribution of output in "), RUN_NAME))
-text(bp, par("usr")[3], cex=0.5, labels = run_data_names, adj = c(1.1,1.1), srt=45, xpd = TRUE)
+text(bp, par("usr")[3], cex=cex, labels = run_data_names, adj = c(1.1,1.1), srt=45, xpd = TRUE)
 dev.off()
