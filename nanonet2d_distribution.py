@@ -21,10 +21,11 @@ input_handle = open(nanonet_2d_fasta_file, "rU")
 
 # Get a list of nanonet_2d_reads
 for record in SeqIO.parse(input_handle, "fasta"):
-    nanonet_2d_read_ids.append(record.id)
+    nanonet_2d_read_ids.append(record.id )
 
+print(nanonet_2d_read_ids[1:15])
 # Now, for each 2d read generated, where did that read go??
-pass_directory = main_directory + "reads/downloads/fail/"
+pass_directory = main_directory + "reads/downloads/pass/"
 fail_directory = main_directory + "reads/downloads/fail/"
 fail_folder_set = ("1D_basecall_not_performed", "2D_basecall_not_performed", "2D_failed_quality_filters",
                    "Corrupted_files", "No_complement_data", "No_template_data",
@@ -32,7 +33,7 @@ fail_folder_set = ("1D_basecall_not_performed", "2D_basecall_not_performed", "2D
 fail_folders = {}
 calibration_stand_sub_folder_set = ("2D_basecall_not_performed", "2D_failed_quality_filters", "Passed_quality")
 
-distribution = {"pass":0}
+distribution = {"pass": 0}
 
 for folder in fail_folder_set:
     fail_folders.update({folder: fail_directory + folder + "/"})
@@ -40,13 +41,14 @@ for folder in fail_folder_set:
 
 for calibration_sub_folder in calibration_stand_sub_folder_set:
     fail_folders.update({"Calibration_strand_detected/" + calibration_sub_folder:
-                         fail_directory + "Calibration_strand_detected/" + folder + "/"})
+                         fail_directory + "Calibration_strand_detected/" + calibration_sub_folder + "/"})
+    distribution.update({"Calibration_strand_detected/" + calibration_sub_folder: 0})
 
 for read in nanonet_2d_read_ids:
     for fail_folder, fail_folder_path in fail_folders.iteritems():
-        if read in os.path.listdir(fail_folder_path):
+        if read in os.listdir(fail_folder_path):
             distribution[fail_folder] += 1
-    if read in os.path.listdir(pass_directory):
+    if read in os.listdir(pass_directory):
         distribution["pass"] += 1
 
 col_names = []

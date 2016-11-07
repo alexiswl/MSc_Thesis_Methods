@@ -78,4 +78,5 @@ output_handle.write("\t".join(map(str, col_names)) + "\n")
 output_handle.write("\t".join(map(str, col_values)) + "\n")
 output_handle.close()
 
+os.chdir(analytics_directory)
 os.system("run_distribution.R %s %s" % (run_distribution_summary_file, RUN_NAME))
