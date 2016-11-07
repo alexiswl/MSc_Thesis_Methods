@@ -58,4 +58,4 @@ output_handle.write("\t".join(str(col_names)) + "\n")
 output_handle.write("\t".join(str(col_values)) + "\n")
 output_handle.close()
 
-os.system("run_distribution.R %s" % RUN_NAME)
+os.system("run_distribution.R %s %s" % (run_distribution_summary_file, RUN_NAME))
