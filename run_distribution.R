@@ -21,7 +21,7 @@ calibration_data$Passed_quality)
 colours = c("red3", "darkorange", "darkolivegreen3")
 
 # Produce the calibration strand plot.
-png("calibration_plot.png")
+png("calibration_plot.png", type = "cairo")
 bp <- barplot(as.numeric(calibration_data), xlab = "", ylab = "Number of Reads", col = colours,
 main = paste(c("Distribution of calibration strands in ", RUN_NAME)))
 text(bp, par("usr")[3], cex=0.8, labels = calibration_data_names, adj = c(0.5,2), xpd = TRUE)
@@ -39,7 +39,7 @@ names(run_data) <- run_data_names
 # Create plot
 colours = c(rep("red3", 6), "darkorange", "darkolivegreen3")
 cex = c(rep(0.7, 3), 0.55, 0.7, 0.6, 0.7, 1)
-png("overall_plot.png")
+png("overall_plot.png", type = "cairo")
 bp <- barplot(as.numeric(run_data), col = colours, ylab = "Number of Reads", main =
 paste(c("Distribution of output in "), RUN_NAME))
 text(bp, par("usr")[3], cex=cex, labels = run_data_names, adj = c(1.1,1.1), srt=45, xpd = TRUE)
