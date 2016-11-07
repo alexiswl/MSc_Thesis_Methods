@@ -44,4 +44,6 @@ for read in nanonet_2d_read_ids:
     if read in os.path.listdir(pass_directory):
         distribution["pass"] += 1
 
+
+
 print(distribution)
