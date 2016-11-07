@@ -54,8 +54,8 @@ for key, value in distribution.iteritems():
 run_distribution_summary_file = analytics_directory + DATE_PREFIX + "_" + RUN_NAME + "_run_distribution.txt"
 
 output_handle = open(run_distribution_summary_file, "w+")
-output_handle.write("\t".join(str(col_names)) + "\n")
-output_handle.write("\t".join(str(col_values)) + "\n")
+output_handle.write("\t".join(map(str, col_names)) + "\n")
+output_handle.write("\t".join(map(str, col_values)) + "\n")
 output_handle.close()
 
 os.system("run_distribution.R %s %s" % (run_distribution_summary_file, RUN_NAME))

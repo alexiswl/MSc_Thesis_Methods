@@ -5,7 +5,7 @@ args = commandArgs(trailingOnly = TRUE)
 input_table = args[1]
 RUN_NAME = args[2]
 
-all_data <- read.table(input_table, header = TRUE)
+all_data <- read.table(input_table, header = TRUE, sep = "\t")
 # Remove X from column name.
 new_all_data_names <- gsub("^X", "", names(all_data))
 names(all_data) <- new_all_data_names
