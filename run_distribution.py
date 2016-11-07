@@ -2,23 +2,43 @@
 
 #!/usr/bin/env python
 
-# For a 2D run, where did the reads end up post-metrichor?
+# Shows a nice plot of the run and the read distribution by metrichor exit status.
 
 from Bio import SeqIO
 import os
 import time
+import argparse
+import sys
 
-main_directory = "/data/Bioinfo/bioinfo-proj-alexis/2016_08_16_E_COLI_R9/"
-analytics_directory = main_directory + "analytics/"
+help_descriptor = "Shows a nice plot of the run and the read distribution by metrichor exit status"
+
+parser = argparse.ArgumentParser(description=help_descriptor)
+parser.add_argument("--working_directory", nargs='?', dest="WORKING_DIRECTORY", type=str,
+                    help="Where would you like to run this script?", required=True)
+parser.add_argument("--run_name", nargs='?', dest="RUN_NAME", type=str,
+                    help="For the purposes of the title in the R plots, what is the name of the run?", required=True)
+
+args = parser.parse_args()
+
+WORKING_DIRECTORY = args.WORKING_DIRECTORY
+RUN_NAME = args.RUN_NAME
+DATE_PREFIX = str(time.strftime("%Y-%m-%d"))
+
+if not os.path.isdir(WORKING_DIRECTORY):
+    error_message = "Error: Working directory specified does not exist"
+    sys.exit(error_message)
+
+WORKING_DIRECTORY = os.path.abspath(WORKING_DIRECTORY) + "/"
+os.chdir(WORKING_DIRECTORY)
+
+analytics_directory = WORKING_DIRECTORY + "analytics/"
 if not os.path.isdir(analytics_directory):
     os.mkdir(analytics_directory)
 
-RUN_NAME = "E_COLI_R9"
-DATE_PREFIX = str(time.strftime("%Y-%m-%d"))
 
 # Now, for each 2d read generated, where did that read go??
-pass_directory = main_directory + "reads/downloads/pass/"
-fail_directory = main_directory + "reads/downloads/fail/"
+pass_directory = WORKING_DIRECTORY + "reads/downloads/pass/"
+fail_directory = WORKING_DIRECTORY + "reads/downloads/fail/"
 fail_folder_set = ("1D_basecall_not_performed", "2D_basecall_not_performed", "2D_failed_quality_filters",
                    "Corrupted_files", "No_complement_data", "No_template_data",
                    "Unknown_error")
