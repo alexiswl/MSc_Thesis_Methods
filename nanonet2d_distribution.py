@@ -57,11 +57,14 @@ for key, value in distribution.iteritems():
     col_names.append(key)
     col_values.append(value)
 
-run_distribution_summary_file = analytics_directory + DATE_PREFIX + "_" + RUN_NAME + "_nanonet2d_distribution.txt"
+nanonet_distribution_summary_file = analytics_directory + DATE_PREFIX + "_" + RUN_NAME + "_nanonet2d_distribution.txt"
+run_distribution_summary_file = analytics_directory + DATE_PREFIX + "_" + RUN_NAME + "_run_distribution.txt"
 
 output_handle = open(run_distribution_summary_file, "w+")
 output_handle.write("\t".join(map(str, col_names)) + "\n")
 output_handle.write("\t".join(map(str, col_values)) + "\n")
 output_handle.close()
 
-#os.system("run_distribution.R %s" % RUN_NAME)
+os.chdir(analytics_directory)
+os.system("nanonet2d_distribution.R %s %s %s" %
+          (run_distribution_summary_file, nanonet_distribution_summary_file, RUN_NAME))
