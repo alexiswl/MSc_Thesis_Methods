@@ -6,6 +6,20 @@
 from Bio import SeqIO
 import os
 import time
+import argparse
+
+help_descriptor = "Shows a nice plot of the run and the read distribution by metrichor exit status"
+
+parser = argparse.ArgumentParser(description=help_descriptor)
+parser.add_argument("--working_directory", nargs='?', dest="WORKING_DIRECTORY", type=str,
+                    help="Where would you like to run this script?", required=True)
+parser.add_argument("--run_name", nargs='?', dest="RUN_NAME", type=str,
+                    help="For the purposes of the title in the R plots, what is the name of the run?", required=True)
+args = parser.parse_args()
+
+RUN_NAME = args.RUN_NAME
+#WORKING_DIRECTORY = args.WORKING_DIRECTORY
+DATE_PREFIX = str(time.strftime("%Y-%m-%d"))
 
 main_directory = "/data/Bioinfo/bioinfo-proj-alexis/2016_08_16_E_COLI_R9/"
 analytics_directory = main_directory + "analytics/"
@@ -13,17 +27,13 @@ nanonet_2d_fasta_file = main_directory + "fasta/2D/concatenated_2d.fasta"
 nanonet_2d_fasta_directory = main_directory + "fasta/2D/2d/"
 os.system("cat %s* > %s" % (nanonet_2d_fasta_directory, nanonet_2d_fasta_file))
 
-RUN_NAME = "E_COLI_R9"
-DATE_PREFIX = str(time.strftime("%Y-%m-%d"))
-
 nanonet_2d_read_ids = []
 input_handle = open(nanonet_2d_fasta_file, "rU")
 
 # Get a list of nanonet_2d_reads
 for record in SeqIO.parse(input_handle, "fasta"):
-    nanonet_2d_read_ids.append(record.id )
+    nanonet_2d_read_ids.append(record.id + ".fast5")
 
-print(nanonet_2d_read_ids[1:15])
 # Now, for each 2d read generated, where did that read go??
 pass_directory = main_directory + "reads/downloads/pass/"
 fail_directory = main_directory + "reads/downloads/fail/"
@@ -60,7 +70,7 @@ for key, value in distribution.iteritems():
 nanonet_distribution_summary_file = analytics_directory + DATE_PREFIX + "_" + RUN_NAME + "_nanonet2d_distribution.txt"
 run_distribution_summary_file = analytics_directory + DATE_PREFIX + "_" + RUN_NAME + "_run_distribution.txt"
 
-output_handle = open(run_distribution_summary_file, "w+")
+output_handle = open(nanonet_distribution_summary_file, "w+")
 output_handle.write("\t".join(map(str, col_names)) + "\n")
 output_handle.write("\t".join(map(str, col_values)) + "\n")
 output_handle.close()

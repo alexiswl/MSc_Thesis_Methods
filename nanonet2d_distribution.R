@@ -81,7 +81,7 @@ label_cex = c(rep(0.7, 3), 0.55, 0.7, 0.6, 0.7, 1)
 png("nanonet_vs_metrichor_sample_data.png", type = "cairo")
 bp <- barplot(matrix_for_plot, col = colours, ylab = "Number of Reads", main =
                 paste(c("Distribution of 2D Local Basecalling in ", RUN_NAME)))
-text(bp, par("usr")[3], cex=cex, labels = run_data_names, adj = c(1.1,1.1), srt=45, xpd = TRUE)
+text(bp, par("usr")[3], cex=label_cex, labels = sample_data_names, adj = c(1.1,1.1), srt=45, xpd = TRUE)
 legend("topleft", legend = c("Local 2D basecalling performed", "Metrichor"),
        col = colours, pch = 15)
 dev.off()
