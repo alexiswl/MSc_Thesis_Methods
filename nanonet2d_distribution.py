@@ -21,6 +21,12 @@ RUN_NAME = args.RUN_NAME
 WORKING_DIRECTORY = args.WORKING_DIRECTORY
 DATE_PREFIX = str(time.strftime("%Y-%m-%d"))
 
+if not os.path.isdir(WORKING_DIRECTORY):
+    error_message = "Error: Working directory does not exist."
+    sys.exit(error_message)
+
+WORKING_DIRECTORY = os.path.abspath(WORKING_DIRECTORY) + "/"
+
 analytics_directory = WORKING_DIRECTORY + "analytics/"
 nanonet_2d_fasta_file = WORKING_DIRECTORY + "fasta/2D/concatenated_2d.fasta"
 nanonet_2d_fasta_directory = WORKING_DIRECTORY + "fasta/2D/2d/"
