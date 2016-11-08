@@ -54,9 +54,9 @@ def get_commandline_params():
     parser = argparse.ArgumentParser(description=help_descriptor)
 
     parser.add_argument("--run_name", dest="RUN_NAME", type=str,
-                        help="Name of the alignment run")
+                        help="Name of the alignment run", required=True)
     parser.add_argument("--working_directory", dest="WORKING_DIRECTORY", type=str,
-                        help="The directory where will do the alignment.")
+                        help="The directory where will do the alignment.", required=True)
     parser.add_argument("--reads_directory", dest="READS_DIRECTORY", type=str,
                         help="Where are the fasta/fastq files?")
     parser.add_argument("--alignment_method", dest="ALIGNER", type=str,
@@ -165,7 +165,7 @@ def set_directories():
         if IS_1D:
             ALIGNER_DIRECTORY += "1D/"
         else:
-            ALIGNER_DIRECTORY += "2D/2d"
+            ALIGNER_DIRECTORY += "2D/"
         if not os.path.isdir(ALIGNER_DIRECTORY):
             os.mkdir(ALIGNER_DIRECTORY)
     else:
@@ -182,8 +182,10 @@ def set_directories():
             ALIGNER_DIRECTORY += "fail/"
         else:
             ALIGNER_DIRECTORY += "pass/"
+        if not os.path.isdir(ALIGNER_DIRECTORY):
+            os.mkdir(ALIGNER_DIRECTORY)
         if not IS_1D:
-            READS_DIRECTORY += "2d/"
+            ALIGNER_DIRECTORY += "2d/"
         if not os.path.isdir(ALIGNER_DIRECTORY):
             os.mkdir(ALIGNER_DIRECTORY)
 
