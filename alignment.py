@@ -10,11 +10,9 @@ WORKING_DIRECTORY = ""
 FASTA_DIRECTORY = ""
 FASTQ_DIRECTORY = ""
 ALIGNMENT_DIRECTORY = ""
-BWA_MEM_DIRECTORY = ""
-GRAPHMAP_DIRECTORY = ""
-LAST_DIRECTORY = ""
 STATS_DIRECTORY = ""
 VISUALS_DIRECTORY = ""
+ALIGNER_DIRECTORY = ""
 
 # Declare global files
 LOG_FILE = ""
@@ -33,7 +31,7 @@ DATE_PREFIX = str(time.strftime("%Y-%m-%d"))
 RUN_NAME = ""
 THREAD_COUNT = 0
 ALIGNER = ""
-ALIGNMENT_CHOICES = ('bwa_mem', 'graphmap', 'last')
+ALIGNMENT_CHOICES = ('bwa-mem', 'graphmap', 'last')
 READS_DIRECTORY = ""
 READS_FILE = ""
 TMP_DIRECTORY = ""
@@ -99,10 +97,9 @@ def set_commandline_variables(args):
 
 def set_directories():
     global THREAD_COUNT, WORKING_DIRECTORY, IS_FASTA, READS_DIRECTORY
-    global LOG_FILE, REFERENCE_FILE, ALIGNMENT_DIRECTORY, SAMPLE_PREFIX
-    global BWA_MEM_DIRECTORY, GRAPHMAP_DIRECTORY, LAST_DIRECTORY, TMP_DIRECTORY
+    global LOG_FILE, REFERENCE_FILE, ALIGNMENT_DIRECTORY, SAMPLE_PREFIX, TMP_DIRECTORY
     global SAM_FILE, BAM_FILE, SORTED_BAM_FILE_NO_SUFFIX, SORTED_BAM_FILE_INDEX, SORTED_BAM_FILE
-    global STATS_DIRECTORY, VISUALS_DIRECTORY
+    global STATS_DIRECTORY, VISUALS_DIRECTORY, ALIGNER_DIRECTORY
 
     if not os.path.isdir(WORKING_DIRECTORY):
         error_message = "Error, working directory does not exist."
@@ -115,13 +112,19 @@ def set_directories():
             if IS_1D:
                 READS_DIRECTORY += "1D/"
             else:
-                READS_DIRECTORY += "2D/2D/"
+                READS_DIRECTORY += "2D/2d/"
         else:
             READS_DIRECTORY = WORKING_DIRECTORY + "fastq/"
-            if FAIL:# Is fastq
+            if IS_1D:
+                READS_DIRECTORY += "1D/"
+            else:
+                READS_DIRECTORY += "2D/"
+            if FAIL:  # Is fastq
                 READS_DIRECTORY += "fail/"
             else:
                 READS_DIRECTORY += "pass/"
+            if not IS_1D:
+                READS_DIRECTORY += "2d/"
     if not os.path.isfile(REFERENCE_FILE):
         error_message = "Could not find reference file."
         sys.exit(error_message)
@@ -147,7 +150,44 @@ def set_directories():
     if not os.path.isdir(ALIGNMENT_DIRECTORY):
         os.mkdir(ALIGNMENT_DIRECTORY)
 
-    STATS_DIRECTORY = ALIGNMENT_DIRECTORY + "stats/"
+    TMP_DIRECTORY = ALIGNMENT_DIRECTORY + "tmp/"
+    if not os.path.isdir(TMP_DIRECTORY):
+        os.mkdir(TMP_DIRECTORY)
+
+    ALIGNER_DIRECTORY = ALIGNMENT_DIRECTORY + ALIGNER + "/"
+    if not os.path.isdir(ALIGNER_DIRECTORY):
+        os.mkdir(ALIGNER_DIRECTORY)
+
+    if IS_FASTA:
+        ALIGNER_DIRECTORY += "fasta/"
+        if not os.path.isdir(ALIGNER_DIRECTORY):
+            os.mkdir(ALIGNER_DIRECTORY)
+        if IS_1D:
+            ALIGNER_DIRECTORY += "1D/"
+        else:
+            ALIGNER_DIRECTORY += "2D/2d"
+        if not os.path.isdir(ALIGNER_DIRECTORY):
+            os.mkdir(ALIGNER_DIRECTORY)
+    else:
+        ALIGNER_DIRECTORY += "fastq/"
+        if not os.path.isdir(ALIGNER_DIRECTORY):
+            os.mkdir(ALIGNER_DIRECTORY)
+        if IS_1D:
+            ALIGNER_DIRECTORY += "1D/"
+        else:
+            ALIGNER_DIRECTORY += "2D/"
+        if not os.path.isdir(ALIGNER_DIRECTORY):
+            os.mkdir(ALIGNER_DIRECTORY)
+        if FAIL:
+            ALIGNER_DIRECTORY += "fail/"
+        else:
+            ALIGNER_DIRECTORY += "pass/"
+        if not IS_1D:
+            READS_DIRECTORY += "2d/"
+        if not os.path.isdir(ALIGNER_DIRECTORY):
+            os.mkdir(ALIGNER_DIRECTORY)
+
+    STATS_DIRECTORY = ALIGNER_DIRECTORY + "stats/"
     if not os.path.isdir(STATS_DIRECTORY):
         os.mkdir(STATS_DIRECTORY)
 
@@ -155,27 +195,7 @@ def set_directories():
     if not os.path.isdir(VISUALS_DIRECTORY):
         os.mkdir(VISUALS_DIRECTORY)
 
-    TMP_DIRECTORY = ALIGNMENT_DIRECTORY + "tmp/"
-    if not os.path.isdir(TMP_DIRECTORY):
-        os.mkdir(TMP_DIRECTORY)
-
-    if ALIGNER == "bwa_mem":
-        BWA_MEM_DIRECTORY = ALIGNMENT_DIRECTORY + "bwa_mem/"
-        if not os.path.isdir(BWA_MEM_DIRECTORY):
-            os.mkdir(BWA_MEM_DIRECTORY)
-        SAMPLE_PREFIX = BWA_MEM_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER
-
-    elif ALIGNER == "graphmap":
-        GRAPHMAP_DIRECTORY = ALIGNMENT_DIRECTORY + "graphmap/"
-        if not os.path.isdir(GRAPHMAP_DIRECTORY):
-            os.mkdir(GRAPHMAP_DIRECTORY)
-        SAMPLE_PREFIX = GRAPHMAP_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER
-
-    else:
-        LAST_DIRECTORY = ALIGNMENT_DIRECTORY + "last/"
-        if not os.path.isdir(LAST_DIRECTORY):
-            os.mkdir(LAST_DIRECTORY)
-        SAMPLE_PREFIX = LAST_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER
+    SAMPLE_PREFIX = ALIGNER_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER
 
     SAM_FILE = SAMPLE_PREFIX + ".sam"
     BAM_FILE = SAMPLE_PREFIX + ".bam"
@@ -298,7 +318,7 @@ def run_last_index():
 
 
 def run_last():
-    maf_file = LAST_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_last.maf"
+    maf_file = ALIGNER_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_last.maf"
     last_command = "lastal %s %s 1> %s 2>> %s" % (REFERENCE_FILE, READS_FILE, maf_file, LOG_FILE)
     maf_convert_command = "maf-convert.py sam %s 2>> %s" % (maf_file, LOG_FILE)
 
@@ -333,7 +353,7 @@ def run_last():
 def convert_sam_to_bam():
     sam_to_bam_command = "samtools view -bS -o %s -@ %d %s 2>> %s" % (BAM_FILE, THREAD_COUNT, SAM_FILE, LOG_FILE)
     sort_bam_file_command = "samtools sort -@ %d %s -o %s 2>> %s" % (THREAD_COUNT, BAM_FILE,
-                                                                  SORTED_BAM_FILE, LOG_FILE)
+                                                                     SORTED_BAM_FILE, LOG_FILE)
     index_sorted_bam_file_command = "samtools index %s %s 2>> %s" % (SORTED_BAM_FILE, SORTED_BAM_FILE_INDEX, LOG_FILE)
 
     # Run sam to bam command.
@@ -388,7 +408,6 @@ def get_stats():
     flagstat_command = "samtools flagstat %s > %s 2>> %s" % (SORTED_BAM_FILE, flagstat_file, LOG_FILE)
     stats_command = "samtools stats %s > %s 2>> %s" % (SORTED_BAM_FILE, stats_file, LOG_FILE)
     plot_bam_stats_command = "plot-bamstats -p %s %s 2>> %s" % (VISUALS_DIRECTORY, stats_file, LOG_FILE)
-
 
     logger = open(LOG_FILE, "a+")
     logger.write("Now using flagstat to analyse dataset at %s." % time.strftime("%c"))
@@ -455,7 +474,7 @@ def main():
     concatenate_files()
 
     # Run aligner
-    if ALIGNER == "bwa_mem":
+    if ALIGNER == "bwa-mem":
         run_bwa_index()
         run_bwa_mem()
     elif ALIGNER == "graphmap":
