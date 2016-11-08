@@ -18,13 +18,12 @@ parser.add_argument("--run_name", nargs='?', dest="RUN_NAME", type=str,
 args = parser.parse_args()
 
 RUN_NAME = args.RUN_NAME
-#WORKING_DIRECTORY = args.WORKING_DIRECTORY
+WORKING_DIRECTORY = args.WORKING_DIRECTORY
 DATE_PREFIX = str(time.strftime("%Y-%m-%d"))
 
-main_directory = "/data/Bioinfo/bioinfo-proj-alexis/2016_08_16_E_COLI_R9/"
-analytics_directory = main_directory + "analytics/"
-nanonet_2d_fasta_file = main_directory + "fasta/2D/concatenated_2d.fasta"
-nanonet_2d_fasta_directory = main_directory + "fasta/2D/2d/"
+analytics_directory = WORKING_DIRECTORY + "analytics/"
+nanonet_2d_fasta_file = WORKING_DIRECTORY + "fasta/2D/concatenated_2d.fasta"
+nanonet_2d_fasta_directory = WORKING_DIRECTORY + "fasta/2D/2d/"
 os.system("cat %s* > %s" % (nanonet_2d_fasta_directory, nanonet_2d_fasta_file))
 
 nanonet_2d_read_ids = []
