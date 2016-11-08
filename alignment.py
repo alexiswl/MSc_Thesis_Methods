@@ -38,6 +38,9 @@ TMP_DIRECTORY = ""
 SAMPLE_PREFIX = ""
 IS_1D = False
 FAIL = False
+READ_TYPE_DEFAULT = "2d"
+READ_TYPE = ""
+STATS_PREFIX = ""
 
 # Set defaults
 THREAD_COUNT_DEFAULT = 20
@@ -75,12 +78,20 @@ def get_commandline_params():
     data_type.add_argument('--fasta', action='store_true', dest="IS_FASTA")
     data_type.add_argument('--fastq', action='store_false', dest="IS_FASTA")
 
+    read_type = parser.add_mutually_exclusive_group(help_descriptor="Using 2D reads? " +
+                                                                    "Which read type would you like to use?" +
+                                                                    "Default set to 2D.")
+
+    read_type.add_argument('--2D', action='store_const', const="2d", dest="READ_TYPE")
+    read_type.add_argument('--fwd', action='store_const', const="fwd", dest="READ_TYPE")
+    read_type.add_argument('--rev', action='store_const', const="rev", dest="READ_TYPE")
+
     args = parser.parse_args()
     return args
 
 
 def set_commandline_variables(args):
-    global THREAD_COUNT, WORKING_DIRECTORY, IS_FASTA, READS_DIRECTORY
+    global THREAD_COUNT, WORKING_DIRECTORY, IS_FASTA, READS_DIRECTORY, READ_TYPE
     global RUN_NAME, LOG_FILE, ALIGNER, REFERENCE_FILE, SAM_FILE, IS_1D, FAIL
 
     RUN_NAME = args.RUN_NAME
@@ -93,7 +104,9 @@ def set_commandline_variables(args):
     LOG_FILE = args.LOG_FILE
     THREAD_COUNT = args.THREAD_COUNT
     IS_FASTA = args.IS_FASTA
-
+    READ_TYPE = args.READ_TYPE
+    if not READ_TYPE:
+        READ_TYPE = READ_TYPE_DEFAULT
 
 def set_directories():
     global THREAD_COUNT, WORKING_DIRECTORY, IS_FASTA, READS_DIRECTORY
@@ -124,7 +137,7 @@ def set_directories():
             else:
                 READS_DIRECTORY += "pass/"
             if not IS_1D:
-                READS_DIRECTORY += "2d/"
+                READS_DIRECTORY += READ_TYPE + "/"
     if not os.path.isfile(REFERENCE_FILE):
         error_message = "Could not find reference file."
         sys.exit(error_message)
@@ -185,7 +198,7 @@ def set_directories():
         if not os.path.isdir(ALIGNER_DIRECTORY):
             os.mkdir(ALIGNER_DIRECTORY)
         if not IS_1D:
-            ALIGNER_DIRECTORY += "2d/"
+            ALIGNER_DIRECTORY += READ_TYPE + "/"
         if not os.path.isdir(ALIGNER_DIRECTORY):
             os.mkdir(ALIGNER_DIRECTORY)
 
@@ -198,6 +211,7 @@ def set_directories():
         os.mkdir(VISUALS_DIRECTORY)
 
     SAMPLE_PREFIX = ALIGNER_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER
+    STATS_PREFIX = STATS_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER
 
     SAM_FILE = SAMPLE_PREFIX + ".sam"
     BAM_FILE = SAMPLE_PREFIX + ".bam"
@@ -403,9 +417,8 @@ def convert_sam_to_bam():
 
 
 def get_stats():
-    stat_prefix = STATS_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_" + ALIGNER
-    flagstat_file = stat_prefix + ".flagstat.txt"
-    stats_file = stat_prefix + ".stats.txt"
+    flagstat_file = STATS_PREFIX + ".flagstat.txt"
+    stats_file = STATS_PREFIX + ".stats.txt"
 
     flagstat_command = "samtools flagstat %s > %s 2>> %s" % (SORTED_BAM_FILE, flagstat_file, LOG_FILE)
     stats_command = "samtools stats %s > %s 2>> %s" % (SORTED_BAM_FILE, stats_file, LOG_FILE)
