@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+import os
 
 alignment_methods = ("bwa-mem", "graphmap", "last")
 
 basecalling_types = ("--1D --fasta", "--2D --fasta", "--fwd --fasta", "--rev --fasta",
-                     "--2D --fastq", "--2D --fastq --fail", "--fwd --fastq", "--fwd --fastq --fail"
+                     "--2D --fastq", "--2D --fastq --fail", "--fwd --fastq", "--fwd --fastq --fail",
                      "--rev --fastq", "--rev --fastq --fail")
 
 preliminary_commandline_arguments = "alignment.py --run_name E_COLI_R9 --working_directory ./ " + \

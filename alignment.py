@@ -78,9 +78,9 @@ def get_commandline_params():
     data_type.add_argument('--fasta', action='store_true', dest="IS_FASTA")
     data_type.add_argument('--fastq', action='store_false', dest="IS_FASTA")
 
-    read_type = parser.add_mutually_exclusive_group(help_descriptor="Using 2D reads? " +
-                                                                    "Which read type would you like to use?" +
-                                                                    "Default set to 2D.")
+    read_type = parser.add_mutually_exclusive_group(help="Using 2D reads? " +
+                                                         "Which read type would you like to use?" +
+                                                         "Default set to 2D.")
 
     read_type.add_argument('--2D', action='store_const', const="2d", dest="READ_TYPE")
     read_type.add_argument('--fwd', action='store_const', const="fwd", dest="READ_TYPE")
@@ -110,7 +110,7 @@ def set_commandline_variables(args):
 
 def set_directories():
     global THREAD_COUNT, WORKING_DIRECTORY, IS_FASTA, READS_DIRECTORY
-    global LOG_FILE, REFERENCE_FILE, ALIGNMENT_DIRECTORY, SAMPLE_PREFIX, TMP_DIRECTORY
+    global LOG_FILE, REFERENCE_FILE, ALIGNMENT_DIRECTORY, SAMPLE_PREFIX, TMP_DIRECTORY, STATS_PREFIX
     global SAM_FILE, BAM_FILE, SORTED_BAM_FILE_NO_SUFFIX, SORTED_BAM_FILE_INDEX, SORTED_BAM_FILE
     global STATS_DIRECTORY, VISUALS_DIRECTORY, ALIGNER_DIRECTORY
 
