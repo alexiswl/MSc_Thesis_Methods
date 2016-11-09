@@ -78,9 +78,7 @@ def get_commandline_params():
     data_type.add_argument('--fasta', action='store_true', dest="IS_FASTA")
     data_type.add_argument('--fastq', action='store_false', dest="IS_FASTA")
 
-    read_type = parser.add_mutually_exclusive_group(help="Using 2D reads? " +
-                                                         "Which read type would you like to use?" +
-                                                         "Default set to 2D.")
+    read_type = parser.add_mutually_exclusive_group()
 
     read_type.add_argument('--2D', action='store_const', const="2d", dest="READ_TYPE")
     read_type.add_argument('--fwd', action='store_const', const="fwd", dest="READ_TYPE")
