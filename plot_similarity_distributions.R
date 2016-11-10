@@ -2,13 +2,13 @@
 
 main_directory = "/data/Bioinfo/bioinfo-proj-alexis/2016_08_16_E_COLI_R9/waterman/"
 # Intracomparison test
-fwd_rev_fasta_failed <- read.table(paste(main_directory, "intracomparison/fwd_rev/failed_quality_waterman_stats"))
-twod_rev_fasta_failed <- read.table(paste(main_directory, "intracomparison/2d_rev/failed_quality_waterman_stats"))
-twod_fwd_fasta_failed <- read.table(paste(main_directory, "intracomparison/2d_fwd/failed_quality_waterman_stats"))
+fwd_rev_fasta_failed <- read.table(paste(main_directory, "intracomparison/fwd_rev/failed_quality_waterman_stats", sep = ""))
+twod_rev_fasta_failed <- read.table(paste(main_directory, "intracomparison/2d_rev/failed_quality_waterman_stats", sep = ""))
+twod_fwd_fasta_failed <- read.table(paste(main_directory, "intracomparison/2d_fwd/failed_quality_waterman_stats", sep = ""))
 
-fwd_rev_fasta_pass <- read.table(paste(main_directory, "intracomparison/fwd_rev/pass_waterman_stats"))
-twod_rev_fasta_pass <- read.table(paste(main_directory, "intracomparison/2d_rev/pass_waterman_stats"))
-twod_fwd_fasta_pass <- read.table(paste(main_directory, "intracomparison/2d_fwd/pass_waterman_stats"))
+fwd_rev_fasta_pass <- read.table(paste(main_directory, "intracomparison/fwd_rev/pass_waterman_stats", sep = ""))
+twod_rev_fasta_pass <- read.table(paste(main_directory, "intracomparison/2d_rev/pass_waterman_stats", sep = ""))
+twod_fwd_fasta_pass <- read.table(paste(main_directory, "intracomparison/2d_fwd/pass_waterman_stats", sep = ""))
 
 names(fwd_rev_fasta_failed) <- c("Filename", "Alignment_Score", "Similarity", "Identity")
 names(twod_rev_fasta_failed) <-  c("Filename", "Alignment_Score", "Similarity", "Identity")
