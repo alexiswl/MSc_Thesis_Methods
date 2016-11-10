@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import os
 
+
+WORKING_DIRECTORY = "/data/Bioinfo/bioinfo-proj-alexis/"
 alignment_methods = ("bwa-mem", "graphmap", "last")
 
 basecalling_types = ("--1D --fasta", "--2D --fasta", "--fwd --fasta", "--rev --fasta",
@@ -16,3 +18,6 @@ for alignment_method in alignment_methods:
         full_commandline_argument = preliminary_commandline_arguments + " --alignment_method " + alignment_method \
                                     + " " + basecalling_type
         os.system(full_commandline_argument)
+
+
+alignment_directory = WORKING_DIRECTORY + "alignment/"
