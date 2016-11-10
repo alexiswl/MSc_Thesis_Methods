@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-main_directory = "/data/Bioinfo/bioinfo-proj-alexis/2016_08_2016_08_16_E_COLI_R9/waterman/"
+main_directory = "/data/Bioinfo/bioinfo-proj-alexis/2016_08_16_E_COLI_R9/waterman/"
 # Intracomparison test
 fwd_rev_fasta_failed <- read.table(paste(main_directory, "intracomparison/fwd_rev/failed_quality_waterman_stats"))
 twod_rev_fasta_failed <- read.table(paste(main_directory, "intracomparison/2d_rev/failed_quality_waterman_stats"))
