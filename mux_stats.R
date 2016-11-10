@@ -9,7 +9,7 @@ args = commandArgs(trailingOnly = TRUE)
 input_table = args[1]
 run_name = args[2]
 output_table = run_name + ".mux_summary.txt"
-ouptut_plot = run_name + ".pore_quality.pdf"
+ouptut_plot = run_name + ".pore_quality.png"
 
 mux <- read.table(input_table)
 
@@ -64,7 +64,7 @@ loghist <- function(x, ..., breaks="Sturges", main = paste("Histogram of", xname
   invisible(h)
 }
 
-pdf(output_plot)
+png(output_plot, type = "cairo")
 loghist(all_channels_by_mux,  main = paste("Pore Quality Distribution of", run_name),
         xlab = "Pass produced by pore", ylab = "Number of pores")
 dev.off()
