@@ -21,7 +21,7 @@ names(twod_fwd_fasta_pass) <- c("Filename", "Alignment_Score", "Similarity", "Id
 
 png("nanonet2d_similarity.png", type = "cairo")
 plot(density(as.numeric(sub("%", "", fwd_rev_fasta_pass$Similarity)), from = 0, to = 100), ylim=c(0,0.1), col = "blue",
-main = paste("Distribution of Similarity Scores for", RUN_NAME), xlab = "Similarity Percentage")
+main = paste("Distribution of Similarity Scores for \n", RUN_NAME), xlab = "Similarity Percentage")
 lines(density(as.numeric(sub("%", "", twod_rev_fasta_pass$Similarity))), col = "green")
 lines(density(as.numeric(sub("%", "", twod_fwd_fasta_pass$Similarity))), col = "red")
 lines(density(as.numeric(sub("%", "", fwd_rev_fasta_failed$Similarity))), col = "blue", lty = 2)
@@ -40,8 +40,8 @@ names(cross_2d) <- c("Read_name", "Alignment_Score", "Identity", "Similarity")
 
 png("2D_comparison_local_vs_cloud.png", type="cairo")
 hist(as.numeric(sub("%", "", cross_2d$Identity)),
-     main = paste("Histogram of Similarity between Local and Cloud Basecalling - 1D", RUN_NAME),
-     xlab = "Similarity Percentage")
+     main = paste("Histogram of Similarity between Local and Cloud Basecalling \n 2D", RUN_NAME),
+     xlab = "Sequence Similarity Percentage")
 dev.off()
 
 # Cross comparison test 1d
@@ -50,8 +50,8 @@ names(cross_1d) <- c("Read_name", "Alignment_Score", "Identity", "Similarity")
 
 png("1D_comparison_local_vs_cloud.png", type="cairo")
 hist(as.numeric(sub("%", "", cross_1d$Identity)),
-     main = paste("Histogram of Similarity between Local and Cloud Basecalling - 1D", RUN_NAME),
-     xlab = "Similarity Percentage")
+     main = paste("Histogram of Similarity between Local and Cloud Basecalling \n 1D", RUN_NAME),
+     xlab = "Sequence Similarity Percentage")
 dev.off()
 
 

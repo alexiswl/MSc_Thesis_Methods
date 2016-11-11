@@ -40,7 +40,7 @@ if PASS_DIRECTORY:
         error_message = "Error: Pass directory %s does not exist." % PASS_DIRECTORY
         sys.exit(error_message)
 if not PASS_DIRECTORY:
-    PASS_DIRECTORY = WORKING_DIRECTORY + "reads/pass/"
+    PASS_DIRECTORY = WORKING_DIRECTORY + "reads/downloads/pass/"
 PASS_DIRECTORY = os.path.abspath(PASS_DIRECTORY) + "/"
 
 METRICS_DIRECTORY = WORKING_DIRECTORY + "metrics/"
