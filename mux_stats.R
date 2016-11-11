@@ -8,8 +8,8 @@ args = commandArgs(trailingOnly = TRUE)
 
 input_table = args[1]
 run_name = args[2]
-output_table = run_name + ".mux_summary.txt"
-ouptut_plot = run_name + ".pore_quality.png"
+output_table = paste(run_name, ".mux_summary.txt", sep = "")
+ouptut_plot = paste(run_name, ".pore_quality.png", sep = "")
 
 mux <- read.table(input_table)
 
