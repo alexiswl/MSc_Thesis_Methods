@@ -9,7 +9,7 @@ args = commandArgs(trailingOnly = TRUE)
 input_table = args[1]
 run_name = args[2]
 output_table = paste(run_name, ".mux_summary.txt", sep = "")
-ouptut_plot = paste(run_name, ".pore_quality.png", sep = "")
+output_plot = paste(run_name, ".pore_quality.png", sep = "")
 
 mux <- read.table(input_table)
 
@@ -46,7 +46,7 @@ print(paste("The total number of channels with one pore producing pass reads is 
 print(paste("The total number of channels with two pores producing pass reads is ", channels_with_two_pores))
 print(paste("The total number of channels with three pores producing pass reads is ", channels_with_three_pores))
 print(paste("The total number of channels with four pores producing pass reads is ", channels_with_four_pores))
-print(paste("This can be seen as a histogram in ", hist_file))
+print(paste("This can be seen as a histogram in ", output_plot))
 sink()
 
 hist(apply(all_channels_by_mux != 0 , 1,sum), breaks=c(-0.5, 0.5,1.5,2.5,3.5,4.5))
