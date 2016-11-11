@@ -40,7 +40,8 @@ names(cross_2d) <- c("Read_name", "Alignment_Score", "Identity", "Similarity")
 
 png("2D_comparison_local_vs_cloud.png", type="cairo")
 hist(as.numeric(sub("%", "", cross_2d$Identity)),
-     main = paste("Histogram of Similarity between Local and Cloud Basecalling - 1D", RUN_NAME))
+     main = paste("Histogram of Similarity between Local and Cloud Basecalling - 1D", RUN_NAME),
+     xlab = "Similarity Percentage")
 dev.off()
 
 # Cross comparison test 1d
@@ -49,6 +50,8 @@ names(cross_1d) <- c("Read_name", "Alignment_Score", "Identity", "Similarity")
 
 png("1D_comparison_local_vs_cloud.png", type="cairo")
 hist(as.numeric(sub("%", "", cross_1d$Identity)),
-     main = paste("Histogram of Similarity between Local and Cloud Basecalling - 1D", RUN_NAME))
+     main = paste("Histogram of Similarity between Local and Cloud Basecalling - 1D", RUN_NAME),
+     xlab = "Similarity Percentage")
 dev.off()
+
 
