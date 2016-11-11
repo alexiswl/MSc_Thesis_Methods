@@ -66,5 +66,5 @@ loghist <- function(x, ..., breaks="Sturges", main = paste("Histogram of", xname
 
 png(output_plot, type = "cairo")
 loghist(all_channels_by_mux,  main = paste("Pore Quality Distribution of", run_name),
-        xlab = "Pass produced by pore", ylab = "Number of pores")
+        xlab = "Number of pass reads produced by pore", ylab = "Number of pores")
 dev.off()
