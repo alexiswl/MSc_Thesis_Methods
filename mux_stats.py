@@ -64,5 +64,5 @@ for fast5file in os.listdir(PASS_DIRECTORY):
 
 mux_output.close()
 
-os.system("mux_stats.R %s %s" % mux_file, RUN_NAME)
+os.system("mux_stats.R %s %s" % (mux_file, RUN_NAME))
 
