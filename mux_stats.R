@@ -19,7 +19,7 @@ table_mux <- table(mux)
 channels_with_reads = rownames(table_mux)
 j = 1
 
-all_channels_by_mux = matrix(, nrow = 512, ncol = 4)
+all_channels_by_mux = matrix(table_mux, nrow = 512, ncol = 4)
 
 for (i in 1:512){
   if (j > length(channels_with_reads)){
