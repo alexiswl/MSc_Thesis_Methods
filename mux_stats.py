@@ -63,6 +63,6 @@ for fast5file in os.listdir(PASS_DIRECTORY):
         mux_output.write(channel_num + "\t" + str(f["/Raw/Reads/Read_" + read_num].attrs.values()[2]) + "\n")
 
 mux_output.close()
-
+os.chdir(METRICS_DIRECTORY)
 os.system("mux_stats.R %s %s" % (mux_file, RUN_NAME))
 
