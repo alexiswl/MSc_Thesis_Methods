@@ -48,7 +48,7 @@ if not os.path.isdir(METRICS_DIRECTORY):
     os.mkdir(METRICS_DIRECTORY)
 
 mux_file = METRICS_DIRECTORY + RUN_NAME + ".mux_aggregate_txt"
-mux_output = open(mux_file, "a+")
+mux_output = open(mux_file, "w+")
 
 for fast5file in os.listdir(PASS_DIRECTORY):
         channel = fast5file.split('_')[-3]
