@@ -40,8 +40,8 @@ for record in SeqIO.parse(input_handle, "fasta"):
     nanonet_2d_read_ids.append(record.id + ".fast5")
 
 # Now, for each 2d read generated, where did that read go??
-pass_directory = main_directory + "reads/downloads/pass/"
-fail_directory = main_directory + "reads/downloads/fail/"
+pass_directory = WORKING_DIRECTORY + "reads/downloads/pass/"
+fail_directory = WORKING_DIRECTORY + "reads/downloads/fail/"
 fail_folder_set = ("1D_basecall_not_performed", "2D_basecall_not_performed", "2D_failed_quality_filters",
                    "Corrupted_files", "No_complement_data", "No_template_data",
                    "Unknown_error")
