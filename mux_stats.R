@@ -57,10 +57,10 @@ print(paste("This can be seen as a histogram in ", output_plot))
 sink()
 
 # Create histogram of number of channels used by each pore
-png(hist_plot, type = "cairo")
+png(paste(hist_plot, ".png", sep = ""), type = "cairo")
 hist(apply(all_channels_by_mux != 0 , 1,sum), breaks=c(-0.5, 0.5,1.5,2.5,3.5,4.5),
      xlab = "Number of pores used in channel", ylab = "Number of channels",
-     main = paste(run_name, "Number of pores used by each channel", collapse="\n")
+     main = paste(run_name, "Number of pores used by each channel", collapse="\n"))
 dev.off()
 
 loghist <- function(x, ..., breaks="Sturges", main = paste("Histogram of", xname), xlab = xname, ylab = "Frequency") {
