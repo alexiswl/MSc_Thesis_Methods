@@ -19,7 +19,12 @@ table_mux <- table(mux)
 channels_with_reads = rownames(table_mux)
 j = 1
 
-all_channels_by_mux = matrix(table_mux, nrow = 512, ncol = 4)
+all_channels_by_mux = matrix(, nrow = 512, ncol = 4)
+
+if (ncol(table_mux) == 5){
+  # Seems to be a 'zero' mux on board. Not sure why.
+  table_mux = table_mux[,2:5]
+}
 
 for (i in 1:512){
   if (j > length(channels_with_reads)){
@@ -34,6 +39,7 @@ for (i in 1:512){
   dud_channel = matrix(c(0,0,0,0), 1, 4)
   all_channels_by_mux[i,] = dud_channel
 }
+
 
 channels_with_four_pores = sum(apply(all_channels_by_mux > 0, 1, sum) == 4)
 channels_with_three_pores = sum(apply(all_channels_by_mux > 0, 1, sum) == 3) + channels_with_four_pores
