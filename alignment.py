@@ -333,7 +333,11 @@ def run_last_index():
 
 def run_last():
     maf_file = ALIGNER_DIRECTORY + DATE_PREFIX + "_" + RUN_NAME + "_last.maf"
-    last_command = "lastal %s %s 1> %s 2>> %s" % (REFERENCE_FILE, READS_FILE, maf_file, LOG_FILE)
+    last_command_options = []
+    if not IS_FASTA:
+        last_command_options.append("-Q 3")
+    last_command = "lastal %s %s %s 1> %s 2>> %s" % (' '.join(last_command_options),
+                                                     REFERENCE_FILE, READS_FILE, maf_file, LOG_FILE)
     maf_convert_command = "maf-convert.py sam %s 2>> %s" % (maf_file, LOG_FILE)
 
     logger = open(LOG_FILE, "a+")
