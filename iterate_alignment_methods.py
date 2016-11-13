@@ -23,7 +23,8 @@ for alignment_method in alignment_methods:
         os.system(full_commandline_argument)
 
 if nanonet:
-    for basecalling_type in nanonet_basecalling_types:
-        full_commandline_argument = preliminary_commandline_arguments + " --alignment_method " + alignment_method \
-                                    + " " + basecalling_type
-        os.system(full_commandline_argument)
+    for alignment_method in alignment_methods:
+        for basecalling_type in nanonet_basecalling_types:
+            full_commandline_argument = preliminary_commandline_arguments + " --alignment_method " + alignment_method \
+                                        + " " + basecalling_type
+            os.system(full_commandline_argument)
