@@ -123,7 +123,8 @@ def set_directories():
             if IS_1D:
                 READS_DIRECTORY += "1D/"
             else:
-                READS_DIRECTORY += "2D/2d/"
+                READS_DIRECTORY += "2D/"
+                ALIGNER_DIRECTORY += READ_TYPE + "/"
         else:
             READS_DIRECTORY = WORKING_DIRECTORY + "fastq/"
             if IS_1D:
@@ -177,6 +178,10 @@ def set_directories():
             ALIGNER_DIRECTORY += "1D/"
         else:
             ALIGNER_DIRECTORY += "2D/"
+        if not os.path.isdir(ALIGNER_DIRECTORY):
+            os.mkdir(ALIGNER_DIRECTORY)
+        if not IS_1D:
+            ALIGNER_DIRECTORY += READ_TYPE + "/"
         if not os.path.isdir(ALIGNER_DIRECTORY):
             os.mkdir(ALIGNER_DIRECTORY)
     else:
