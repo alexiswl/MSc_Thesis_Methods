@@ -17,11 +17,13 @@ parser.add_argument("--working_directory", nargs='?', dest="WORKING_DIRECTORY", 
                     help="Where would you like to run this script?", required=True)
 parser.add_argument("--run_name", nargs='?', dest="RUN_NAME", type=str,
                     help="For the purposes of the title in the R plots, what is the name of the run?", required=True)
-
+parser.add_argument("--1D_run", action='store_true', dest="IS_1D", default=False,
+                    help="Use this option if the run was 1D only.")
 args = parser.parse_args()
 
 WORKING_DIRECTORY = args.WORKING_DIRECTORY
 RUN_NAME = args.RUN_NAME
+IS_1D = args.IS_1D
 DATE_PREFIX = str(time.strftime("%Y-%m-%d"))
 
 if not os.path.isdir(WORKING_DIRECTORY):
@@ -39,11 +41,18 @@ if not os.path.isdir(analytics_directory):
 # Now, for each 2d read generated, where did that read go??
 pass_directory = WORKING_DIRECTORY + "reads/downloads/pass/"
 fail_directory = WORKING_DIRECTORY + "reads/downloads/fail/"
-fail_folder_set = ("1D_basecall_not_performed", "2D_basecall_not_performed", "2D_failed_quality_filters",
-                   "Corrupted_files", "No_complement_data", "No_template_data",
-                   "Unknown_error")
+
+if IS_1D:
+    fail_folder_set = ("1D_basecall_not_performed", "1D_failed_quality_filters", "Corrupted_files", "No_template_data",
+                       "Unknown_error")
+    calibration_stand_sub_folder_set = ("1D_failed_quality_filters", "Passed_quality")
+
+else:
+    fail_folder_set = ("1D_basecall_not_performed", "2D_basecall_not_performed", "2D_failed_quality_filters",
+                       "Corrupted_files", "No_complement_data", "No_template_data",
+                       "Unknown_error")
+    calibration_stand_sub_folder_set = ("2D_basecall_not_performed", "2D_failed_quality_filters", "Passed_quality")
 fail_folders = {}
-calibration_stand_sub_folder_set = ("2D_basecall_not_performed", "2D_failed_quality_filters", "Passed_quality")
 
 distribution = {"pass":0}
 
@@ -79,4 +88,4 @@ output_handle.write("\t".join(map(str, col_values)) + "\n")
 output_handle.close()
 
 os.chdir(analytics_directory)
-os.system("run_distribution.R %s %s" % (run_distribution_summary_file, RUN_NAME))
+os.system("run_distribution.R %s %s %s" % (run_distribution_summary_file, RUN_NAME, IS_1D))
